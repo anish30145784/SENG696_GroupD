@@ -1,5 +1,5 @@
 # SENG696_GroupD
 #SrujanPatel
-#SampreetPatel
+#SampreetVaidya
 #JairathChopra
 #AnishMukherjee
