@@ -29,7 +29,7 @@ public class ClientService {
         Client newClient = new Client();
         newClient.setFirstName(client.getFirstName());
         newClient.setLastName(client.getLastName());
-        newClient.setAmka(client.getAmka());
+        newClient.setId(client.getId());
         newClient.setPhone(client.getPhone());
         newClient.setEmail(client.getEmail());
         newClient.setUsername(client.getUsername());
@@ -43,19 +43,19 @@ public class ClientService {
         return clientRepository.findClientByEmailEquals(client.getEmail()) == null;
     }
 
-    public boolean validUserAmka(Client client) {
-        return clientRepository.findClientByAmkaEquals(client.getAmka()) == null;
+    public boolean validUserId(Client client) {
+        return clientRepository.findClientByIdEquals(client.getId()) == null;
     }
 
     public Client registerUserIfIsValid(Client client) throws ClientEmailExistsException, ClientAmkaExistsException, ClientParamsException {
 
-        if (validUserAmka(client) && validUserEmail(client)) {
+        if (validUserId(client) && validUserEmail(client)) {
             registerClient(client);
             return client;
-       } else if (!validUserEmail(client) && validUserAmka(client)) {
+       } else if (!validUserEmail(client) && validUserId(client)) {
             throw new ClientEmailExistsException(client.getEmail());
-        }else if (validUserEmail(client) && !validUserAmka(client)) {
-            throw new ClientAmkaExistsException(client.getAmka());
+        }else if (validUserEmail(client) && !validUserId(client)) {
+            throw new ClientAmkaExistsException(client.getId());
         }else {
             throw new ClientParamsException();
         }

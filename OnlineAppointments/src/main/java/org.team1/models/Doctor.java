@@ -11,7 +11,8 @@ import java.io.Serializable;
 @Table(name = "doctor")
 public class Doctor implements Serializable {
 
-    private String amka;
+
+    private String id;
 
     @NotNull
     @Pattern(regexp = "[a-zA-Z]{3,30}")
@@ -41,10 +42,10 @@ public class Doctor implements Serializable {
 
     public Doctor(){}
 
-    public Doctor(String amka, String firstName, String lastName, String username, String password, long phone,
+    public Doctor(String id, String firstName, String lastName, String username, String password, long phone,
                   String email, Specialty specialty){
 
-        this.amka = amka;
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
@@ -56,11 +57,11 @@ public class Doctor implements Serializable {
 
     @Id
     @Column(unique = true, nullable = false)
-    public String getAmka() {
-        return amka;
+    public String getId() {
+        return id;
     }
-    public void setAmka(String amka) {
-        this.amka = amka;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Column(name = "first_name", nullable = false)
@@ -121,7 +122,7 @@ public class Doctor implements Serializable {
 
     @Override
     public String toString(){
-        return "Doctor{" + "amka=" + amka + ",First Name=" + firstName + ",Last Name=" + lastName + ",username=" + username +
+        return "Doctor{" + "id=" + id + ",First Name=" + firstName + ",Last Name=" + lastName + ",username=" + username +
                 ",phone=" + phone + ",email=" + email + ",specialty=" + specialty + '\'' + '}';
     }
 }

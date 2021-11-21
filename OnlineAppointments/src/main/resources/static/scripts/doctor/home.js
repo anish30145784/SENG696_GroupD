@@ -7,9 +7,14 @@ function populateDataTable(appointments) {
                    $('#appointments').DataTable().destroy();
               }
             $('#appointments tbody').empty();
+            console.log("apointment=============",appointments)
             $("#appointments").append("<tbody>");
             jQuery.each(appointments, function(i,appointment) {
-                $("#appointments").append("<tr id='appointmentRow" + appointment.id + "'><td>" + appointment.id + "</td><td>" +appointment.dateTime + "</td><td>" + appointment.description + "</td><td><span id='ClickableImageEdit' data-toggle='modal' data-target='#viewAppointmentModal' onclick='findRow()' style='color: #0067B3'>View details</span></td></tr>");
+                
+                $("#appointments").append("<tr id='appointmentRow" + appointment.id + "'><td>" + appointment.id + "</td><td>" + appointment.client.firstName + "</td><td>" +appointment.dateTime + "</td><td>" + appointment.description +  "</td><td>" + appointment.status +"</td><td><span id='ClickableImageEdit" + appointment.id + "' data-toggle='modal' data-target='#viewAppointmentModal' onclick='findRow()' style='color: #0067B3'>View details</span></td><td><button id='complete" + appointment.id + "' onclick='show(" + appointment.id + ")' class='custom-btn' >Completed</button></td></tr>");
+                if(appointment.status === 'Completed'){
+                    document.getElementById("complete"+appointment.id).disabled = 'disabled'
+                }
 
              });
            $("#appointments").append("</tbody>");
@@ -23,8 +28,19 @@ function populateDataTable(appointments) {
 
 }
 
+function show(id){
+ $.ajax({
+        url: ROOT_PATH + "/appointment/complete/"+id
+    }).then(function(appointment) {
+        document.getElementById("complete"+id).disabled = 'disabled'
+        window.location.reload();
+        
+    });
+}
+
+
 var tableRow;
-function findRow(){
+function findRow(id){
       $("#appointments tr").click(function() {
        tableRow=$(this).children("td").html();
        loadAppointment(tableRow);
@@ -40,7 +56,7 @@ function loadAppointment(id) {
        $(":input[name=notes]").val(appointment[0].notes);
        $("input[name=fname]").val(appointment[0].client.firstName);
        $("input[name=lname]").val(appointment[0].client.lastName);
-       $("input[name=amka]").val(appointment[0].client.amka);
+       $("input[name=id]").val(appointment[0].client.id);
        $("input[name=phone]").val(appointment[0].client.phone);
        $("input[name=email]").val(appointment[0].client.email);
 }

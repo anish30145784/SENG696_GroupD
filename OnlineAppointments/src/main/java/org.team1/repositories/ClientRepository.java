@@ -9,7 +9,7 @@ public interface ClientRepository extends JpaRepository<Client, String> {
 
     Client findByUsername(String username);
 
-    Client findClientByAmkaEquals(String amka);
+    Client findClientByIdEquals(String id);
 
     Client findClientByEmailEquals(String email);
 

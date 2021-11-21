@@ -2,7 +2,7 @@ function register(firstnameElement,lastnameElement,amkaElement,phoneElement,emai
     event.preventDefault();
     let firstname = firstnameElement && firstnameElement.value ? firstnameElement.value : "";
     let lastname = lastnameElement && lastnameElement.value ? lastnameElement.value : "";
-    let amka = amkaElement && amkaElement.value ? amkaElement.value : "";
+    let id = amkaElement && amkaElement.value ? amkaElement.value : "";
     let phone = phoneElement && phoneElement.value ? phoneElement.value : "";
     let email = emailElement && emailElement.value ? emailElement.value : "";
     let username = usernameElement && usernameElement.value ? usernameElement.value : "";
@@ -12,7 +12,7 @@ function register(firstnameElement,lastnameElement,amkaElement,phoneElement,emai
     var registrationdata = {
       "firstName" :  firstname,
       "lastName" :  lastname,
-      "amka" :  amka,
+      "id" :  id,
       "phone" :  phone,
       "email" :  email,
       "username" :  username,

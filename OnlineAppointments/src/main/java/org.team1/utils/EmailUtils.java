@@ -1,15 +1,23 @@
 package org.team1.utils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import java.util.Properties;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-public class EmailUtils {
-    public static void main(String[] args) {
+@Service
+public class EmailUtils{
 
-        final String username = "Ani8222@gmail.com";
-        final String password = "anish@1234@@";
+    public static void main(String to, String subject, String body) {
+
+        final String username = "talk2anish@gmail.com";
+        final String password = "anish@123@@";
 
         Properties props = new Properties();
         props.put("mail.smtp.starttls.enable", "true");
@@ -27,13 +35,13 @@ public class EmailUtils {
         try {
 
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("Ani8222@gmail.com"));
+            message.setFrom(new InternetAddress("talk2anish@gmail.com"));
 
             message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse("Ani8222@gmail.com"));
-            message.setSubject("Testing Subject");
-            message.setText("Dear Mail Crawler,"
-                    + "\n\n No spam to my email, please!");
+                    InternetAddress.parse("talk2anish@gmail.com"));
+            message.setSubject(subject);
+            message.setText(body);
+            message.setContent(body, "text/html; charset=utf-8");
 
             Transport.send(message);
 

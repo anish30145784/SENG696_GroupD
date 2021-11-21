@@ -63,6 +63,7 @@ public class WebAppConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/client/**").hasRole("Client")
                 .antMatchers("/appointment/**").authenticated()
                 .antMatchers("/doc//**").authenticated()
+                .antMatchers("/feedback").permitAll()
                 .and()
                 .formLogin()
                 .successHandler(mySuccessHandler)

@@ -59,6 +59,11 @@ public class AppointmentController {
         return appointmentService.getAppointmentsByDoctorUsername(principal.getName());
     }
 
+    @GetMapping("/appointment/complete/{id}")
+    public Appointment setAppointmentCompletion(Principal principal,@PathVariable("id") Long id) {
+        return appointmentService.completeAppointment(principal.getName(),id);
+    }
+
     @GetMapping("/appointment/all/date-specialty")
     public List<Appointment> getAppointmentsBetweenDatesAndBySpecialty(
             Principal principal,

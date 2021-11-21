@@ -9,17 +9,16 @@ import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.team1.agent.JadeAgent;
+import org.team1.agent.AppointmentJadeAgent;
 import org.team1.agent.JadeBootThread;
-
-import java.util.Properties;
 
 
 @SpringBootApplication
 public class InsApp {
 
     public static void main(String[] args ) throws StaleProxyException {
-//        startMainContainer();
+
+        SpringApplication.run(InsApp.class, args);
         try {
             new JadeBootThread().run();
         } catch (ClassNotFoundException e) {
@@ -27,25 +26,9 @@ public class InsApp {
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
-        SpringApplication.run(InsApp.class, args);
 
     }
 
-    private static void startMainContainer() throws StaleProxyException {
-        Runtime runtime = jade.core.Runtime.instance();
-        runtime.setCloseVM(true);
-
-        Profile profile = new ProfileImpl("192.168.2.9", 12344, null);
-        profile.setParameter(Profile.GUI, "true");
-
-        AgentContainer mainContainer = runtime.createMainContainer(profile);
-
-        AgentController agentOne = mainContainer
-                .createNewAgent("AgentOne", JadeAgent.class.getName(), new Object[0]);
-        agentOne.start();
-
-
-    }
 
 }
 

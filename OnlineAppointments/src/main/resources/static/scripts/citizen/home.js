@@ -78,7 +78,7 @@ function populateDoctorsDropdown(doctors) {
          dropdown.empty();
          $("#doctorA").append("<option value='' selected disabled>Choose Doctor</option>");
          jQuery.each(doctors, function(i,doctor) {
-           $("#doctorA").append("<option value="+doctor.amka+">"+doctor.lastName+"</option>");
+           $("#doctorA").append("<option value="+doctor.id+">"+doctor.lastName+"</option>");
            });
 }
 
@@ -196,7 +196,7 @@ $(document).ready(function() {
         let notes=$("#notes").val();
         let dataAppointment = {
               "doctor":   {
-                  "amka": doctorA
+                  "id": doctorA
               },
               "dateTime": dateTime,
               "description": description,

@@ -1,13 +1,23 @@
 package org.team1.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.team1.utils.PdfUtil;
 import org.team1.exceptions.DoctorNotFoundException;
 import org.team1.models.Doctor;
+import org.team1.models.Feedback;
+import org.team1.models.FeedbackDto;
 import org.team1.repositories.DoctorRepository;
+import org.team1.repositories.FeedbackRepository;
 import org.team1.services.DoctorService;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -16,9 +26,40 @@ public class DoctorController {
     private final DoctorService doctorService;
 
     @Autowired
+    private FeedbackRepository feedbackRepository;
+
+    @Autowired
     public DoctorController(DoctorRepository clientRepository, DoctorService doctorService) {
         this.doctorRepository = clientRepository;
         this.doctorService = doctorService;
+    }
+
+    @PostMapping(value = "/feedback",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public Feedback feedback( FeedbackDto feedback){
+        System.out.println(feedback.toString());
+        Feedback feedback1 = new Feedback();
+        feedback1.setFirstName(feedback.getFirstName());
+        feedback1.setLastName(feedback.getLastName());
+        feedback1.setEmail(feedback.getEmail());
+        feedback1.setFeedback(feedback.getFeedback());
+//        return feedback1;
+        return feedbackRepository.save(feedback1);
+    }
+
+    @GetMapping(value = "/feedback/pdf/{email}", produces =
+            MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<InputStreamResource> employeeReport(@PathVariable("email") String email)
+            throws IOException {
+        List<Feedback> employees =  feedbackRepository.findByEmail(email);
+
+        ByteArrayInputStream bis = PdfUtil.employeePDFReport(employees);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=employees.pdf");
+
+        return ResponseEntity.ok().headers(headers).contentType
+                        (MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(bis));
     }
 
     @GetMapping("/doctor/all")
@@ -26,10 +67,10 @@ public class DoctorController {
         return doctorRepository.findAll();
     }
 
-    @GetMapping("/doctor/{amka}")
-    public Doctor getDoctor(@PathVariable String amka) {
-        return doctorRepository.findById(amka)
-                .orElseThrow(() -> new DoctorNotFoundException(amka));
+    @GetMapping("/doctor/{id}")
+    public Doctor getDoctor(@PathVariable String id) {
+        return doctorRepository.findById(id)
+                .orElseThrow(() -> new DoctorNotFoundException(id));
     }
 
     @PostMapping("/doctor")
@@ -43,21 +84,21 @@ public class DoctorController {
         return doctorService.getDoctorsWithSpecialty(specName);
     }
 
-    @PutMapping("/doctor/{amka}")
-    public Doctor updateDoctor(@PathVariable String amka, @RequestBody Doctor updateDoctor) {
-        return doctorRepository.findById(amka)
+    @PutMapping("/doctor/{id}")
+    public Doctor updateDoctor(@PathVariable String id, @RequestBody Doctor updateDoctor) {
+        return doctorRepository.findById(id)
                 .map(doctor -> {
                     doctor.setUsername(updateDoctor.getUsername());
                     return doctorRepository.save(doctor);
                 })
-                .orElseThrow(() -> new DoctorNotFoundException(amka));
+                .orElseThrow(() -> new DoctorNotFoundException(id));
     }
 
-    @DeleteMapping("doctor/{amka}")
+    @DeleteMapping("doctor/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteDoctor(@PathVariable String amka) {
-        getDoctor(amka);
-        doctorRepository.deleteById(amka);
+    public void deleteDoctor(@PathVariable String id) {
+        getDoctor(id);
+        doctorRepository.deleteById(id);
     }
 }
 

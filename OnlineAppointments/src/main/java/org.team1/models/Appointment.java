@@ -1,6 +1,7 @@
 package org.team1.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.Date;
 @Entity(name = "appointmentEntity")
 @Table(name = "appointment")
 public class Appointment implements Serializable{
+
 
     private Long id;
 
@@ -32,12 +34,21 @@ public class Appointment implements Serializable{
     private String notes;
 
     @Nullable
-    @Enumerated(EnumType.STRING)
-    private Criticality criticality;
+    //@Enumerated(EnumType.ORDINAL)
+    private int criticality;
 
     @Nullable
     @Size(max = 250)
     private String status;
+
+    @Nullable
+    private String email;
+
+    @Nullable
+    private String sms;
+
+    @Nullable
+    private String feedback;
 
     public Appointment(){}
 
@@ -77,25 +88,13 @@ public class Appointment implements Serializable{
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
 
-    @Override
-    public String toString() {
-        return "Appointment{" +
-                "id=" + id +
-                ", client='" + client + '\'' +
-                ", doctor='" + doctor + '\'' +
-                ", dateTime='" + dateTime + '\'' +
-                ", description='" + description + '\'' +
-                ", notes='" + notes + '\'' +
-                '}';
-    }
-
     @Nullable
     public Criticality getCriticality() {
-        return criticality;
+        return Criticality.parse(this.criticality);
     }
 
     public void setCriticality(@Nullable Criticality criticality) {
-        this.criticality = criticality;
+        this.criticality = criticality.getValue();
     }
 
     @Nullable
@@ -105,5 +104,49 @@ public class Appointment implements Serializable{
 
     public void setStatus(@Nullable String status) {
         this.status = status;
+    }
+
+    @Nullable
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(@Nullable String email) {
+        this.email = email;
+    }
+
+    @Nullable
+    public String getSms() {
+        return sms;
+    }
+
+    public void setSms(@Nullable String sms) {
+        this.sms = sms;
+    }
+
+    @Nullable
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(@Nullable String feedback) {
+        this.feedback = feedback;
+    }
+
+    @Override
+    public String toString() {
+        return "Appointment{" +
+                "id=" + id +
+                ", client=" + client +
+                ", doctor=" + doctor +
+                ", dateTime=" + dateTime +
+                ", description='" + description + '\'' +
+                ", notes='" + notes + '\'' +
+                ", criticality=" + criticality +
+                ", status='" + status + '\'' +
+                ", email='" + email + '\'' +
+                ", sms='" + sms + '\'' +
+                ", feedback='" + feedback + '\'' +
+                '}';
     }
 }

@@ -10,6 +10,7 @@ import org.team1.repositories.AppointmentRepository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AppointmentService {
@@ -28,7 +29,7 @@ public class AppointmentService {
         Appointment newAppointment = new Appointment();
 
         newAppointment.setClient(client);
-        newAppointment.setDoctor(doctorService.findDoctorByAmka(appointment.getDoctor().getAmka()));
+        newAppointment.setDoctor(doctorService.findDoctorByAmka(appointment.getDoctor().getId()));
         newAppointment.setDateTime(appointment.getDateTime());
         newAppointment.setDescription(appointment.getDescription());
         newAppointment.setNotes(appointment.getNotes());
@@ -63,5 +64,9 @@ public class AppointmentService {
     }
 
 
-
+    public Appointment completeAppointment(String name, Long id) {
+        Appointment appointment = appointmentRepository.findById(id).get();
+        appointment.setStatus("Completed");
+        return appointmentRepository.save(appointment);
+    }
 }

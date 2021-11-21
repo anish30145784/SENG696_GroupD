@@ -37,27 +37,27 @@ public class ClientController {
     @GetMapping("/clients")
     public List<Client> getClients() { return clientRepository.findAll(); }
 
-    @GetMapping("/clients/{amka}") //done
-    public Client getClient(@PathVariable String amka) {
-        return clientRepository.findById(amka)
-                .orElseThrow(() -> new ClientNotFoundException(amka));
+    @GetMapping("/clients/{id}") //done
+    public Client getClient(@PathVariable String id) {
+        return clientRepository.findById(id)
+                .orElseThrow(() -> new ClientNotFoundException(id));
     }
 
-    @PutMapping("/clients/{amka}")
-    public Client updateClient(@PathVariable String amka, @PathVariable Client updateClient) {
-        return clientRepository.findById(amka)
+    @PutMapping("/clients/{id}")
+    public Client updateClient(@PathVariable String id, @PathVariable Client updateClient) {
+        return clientRepository.findById(id)
                 .map(client -> {
                     client.setUsername(updateClient.getUsername());
                     return clientRepository.save(client);
                 })
-                .orElseThrow(() -> new ClientNotFoundException(amka));
+                .orElseThrow(() -> new ClientNotFoundException(id));
     }
 
-    @DeleteMapping("clients/{amka}")
+    @DeleteMapping("clients/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteClient(@PathVariable String amka) {
-        getClient(amka);
-        clientRepository.deleteById(amka);
+    public void deleteClient(@PathVariable String id) {
+        getClient(id);
+        clientRepository.deleteById(id);
     }
 }
 

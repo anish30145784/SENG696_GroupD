@@ -18,8 +18,8 @@ public class DoctorService {
         this.doctorRepository = doctorRepository;
     }
 
-    public Doctor findDoctorByAmka(String amka){
-        return doctorRepository.findByAmka(amka);
+    public Doctor findDoctorByAmka(String id){
+        return doctorRepository.findById(id).get();
     }
 
     public List<Doctor> getDoctorsWithSpecialty(String specName){
