@@ -18,7 +18,7 @@ public class SmsUtil {
     public static void main() throws Exception {
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
         Message message = Message.creator(
-                        new com.twilio.type.PhoneNumber("+917011001155"),
+                        new com.twilio.type.PhoneNumber("+919205058292"),
                         "MGd5dc9fe0fc424fc51bd7844357eb6973",
                         "your appointment has been scheduled")
                 .create();
