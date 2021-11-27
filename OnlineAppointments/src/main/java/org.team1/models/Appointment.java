@@ -1,7 +1,6 @@
 package org.team1.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -12,7 +11,7 @@ import java.util.Date;
 
 @Entity(name = "appointmentEntity")
 @Table(name = "appointment")
-public class Appointment implements Serializable{
+public class Appointment implements Serializable {
 
 
     private Long id;
@@ -34,8 +33,8 @@ public class Appointment implements Serializable{
     private String notes;
 
     @Nullable
-    //@Enumerated(EnumType.ORDINAL)
-    private int criticality;
+    @Enumerated(EnumType.ORDINAL)
+    private Criticality criticality;
 
     @Nullable
     @Size(max = 250)
@@ -50,7 +49,11 @@ public class Appointment implements Serializable{
     @Nullable
     private String feedback;
 
-    public Appointment(){}
+    @Column(name = "id_deleted")
+    private Boolean isDeleted;
+
+    public Appointment() {
+    }
 
     public Appointment(Client client, Doctor doctor, Date dateTime, String description, String notes) {
         this.client = client;
@@ -62,39 +65,69 @@ public class Appointment implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     @ManyToOne
     @JoinColumn(name = "client_id")
-    public Client getClient() { return client; }
-    public void setClient(Client client) { this.client = client; }
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
 
     @ManyToOne
     @JoinColumn(name = "doctor_id")
-    public Doctor getDoctor() { return doctor; }
-    public void setDoctor(Doctor doctor) { this.doctor = doctor; }
+    public Doctor getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(Doctor doctor) {
+        this.doctor = doctor;
+    }
 
     @Column(name = "datetime")
-    public Date getDateTime() { return dateTime; }
-    public void setDateTime(Date dateTime) { this.dateTime = dateTime; }
+    public Date getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(Date dateTime) {
+        this.dateTime = dateTime;
+    }
 
     @Column(name = "description")
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     @Column(name = "notes")
     @Nullable
-    public String getNotes() { return notes; }
-    public void setNotes(String notes) { this.notes = notes; }
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 
     @Nullable
     public Criticality getCriticality() {
-        return Criticality.parse(this.criticality);
+        return this.criticality;
     }
 
     public void setCriticality(@Nullable Criticality criticality) {
-        this.criticality = criticality.getValue();
+        this.criticality = criticality;
     }
 
     @Nullable
@@ -148,5 +181,13 @@ public class Appointment implements Serializable{
                 ", sms='" + sms + '\'' +
                 ", feedback='" + feedback + '\'' +
                 '}';
+    }
+
+    public Boolean getDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        isDeleted = deleted;
     }
 }

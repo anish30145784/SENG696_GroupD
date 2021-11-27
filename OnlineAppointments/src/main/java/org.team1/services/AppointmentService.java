@@ -10,7 +10,7 @@ import org.team1.repositories.AppointmentRepository;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AppointmentService {
@@ -35,32 +35,35 @@ public class AppointmentService {
         newAppointment.setNotes(appointment.getNotes());
         newAppointment.setCriticality(appointment.getCriticality());
         newAppointment.setStatus("NOT_SCHEDULED");
+        newAppointment.setDeleted(Boolean.FALSE);
 
         appointmentRepository.save(newAppointment);
         return newAppointment;
     }
 
-    public List<Appointment> getAllAppointments() { return appointmentRepository.findAll(); }
+    public List<Appointment> getAllAppointments() {
+        return appointmentRepository.findAll().stream().filter(d -> d.getDeleted() == Boolean.FALSE).collect(Collectors.toList());
+    }
 
     public Appointment getAppointmentById(Long id) {
-        return appointmentRepository.findById(id)
+        return appointmentRepository.findById(id).filter(d -> d.getDeleted() == Boolean.FALSE)
                 .orElseThrow(() -> new AppointmentNotFoundException(id));
     }
 
     public List<Appointment> getAppointmentsByClientUsername(String username) {
-        return appointmentRepository.findAppointmentsByClientUsernameEquals(username);
+        return appointmentRepository.findAppointmentsByClientUsernameEquals(username).stream().filter(d -> d.getDeleted() == Boolean.FALSE).collect(Collectors.toList());
     }
 
     public List<Appointment> getAppointmentsByDoctorUsername(String username) {
-        return appointmentRepository.findAppointmentsByDoctorUsernameEquals(username);
+        return appointmentRepository.findAppointmentsByDoctorUsernameEquals(username).stream().filter(d -> d.getDeleted() == Boolean.FALSE).collect(Collectors.toList());
     }
 
     public List<Appointment> getAppointmentsBetweenDatesAndBySpecialty(Date startDate, Date endDate, String specName) {
-        return appointmentRepository.findAppointmentsByDateTimeBetweenAndDoctor_Specialty_Name(startDate, endDate, specName);
+        return appointmentRepository.findAppointmentsByDateTimeBetweenAndDoctor_Specialty_Name(startDate, endDate, specName).stream().filter(d -> d.getDeleted() == Boolean.FALSE).collect(Collectors.toList());
     }
 
     public List<Appointment> getAppointmentsBetweenOrByDescription(Date startDate, Date endDate, String desc) {
-        return appointmentRepository.findAppointmentsByDateTimeBetweenAndDescriptionContaining(startDate,endDate,desc);
+        return appointmentRepository.findAppointmentsByDateTimeBetweenAndDescriptionContaining(startDate, endDate, desc);
     }
 
 

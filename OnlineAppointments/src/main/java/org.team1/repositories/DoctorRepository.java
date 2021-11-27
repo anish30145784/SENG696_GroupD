@@ -14,5 +14,5 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
 
     List<Doctor> findDoctorsBySpecialtyNameEquals(String specName);
 
-
+    Doctor findByFirstNameAndEmail(String firstName, String email);
 }

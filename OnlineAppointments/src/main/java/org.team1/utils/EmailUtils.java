@@ -16,8 +16,8 @@ public class EmailUtils{
 
     public static void main(String to, String subject, String body) {
 
-        final String username = "talk2anish@gmail.com";
-        final String password = "anish@123@@";
+        final String username = "mail2anish696@gmail.com";
+        final String password = "motorokr2";
 
         Properties props = new Properties();
         props.put("mail.smtp.starttls.enable", "true");
@@ -35,10 +35,10 @@ public class EmailUtils{
         try {
 
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("talk2anish@gmail.com"));
+            message.setFrom(new InternetAddress("mail2anish696@gmail.com"));
 
             message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse("talk2anish@gmail.com"));
+                    InternetAddress.parse("mail2anish696@gmail.com"));
             message.setSubject(subject);
             message.setText(body);
             message.setContent(body, "text/html; charset=utf-8");

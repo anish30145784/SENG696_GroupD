@@ -7,6 +7,6 @@ import org.team1.models.Feedback;
 import java.util.List;
 
 @Repository
-public interface FeedbackRepository extends JpaRepository<Feedback,Long> {
-    List<Feedback> findByEmail(String email);
+public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
+    List<Feedback> findByDoctor_Email(String email);
 }

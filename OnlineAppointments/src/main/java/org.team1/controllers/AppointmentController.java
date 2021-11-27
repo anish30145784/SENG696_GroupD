@@ -30,7 +30,7 @@ public class AppointmentController {
                                  AppointmentService appointmentService, ClientService clientService) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentService = appointmentService;
-        this.clientService =clientService;
+        this.clientService = clientService;
     }
 
     @GetMapping("/appointment/all")
@@ -40,13 +40,14 @@ public class AppointmentController {
 
     @GetMapping("/appointment/{id}")
     public Appointment getAppointment(@PathVariable Long id) {
-        return appointmentService.getAppointmentById(id); }
+        return appointmentService.getAppointmentById(id);
+    }
 
     @PostMapping("/appointment/new")
     @ResponseStatus(HttpStatus.CREATED)
     public Appointment createAppointment(@Valid @RequestBody Appointment appointment, Principal principal) {
         Client client = clientService.findByUserName(principal.getName());
-        return appointmentService.createAppointment(appointment,client);
+        return appointmentService.createAppointment(appointment, client);
     }
 
     @GetMapping("/appointment/all/client")
@@ -60,8 +61,8 @@ public class AppointmentController {
     }
 
     @GetMapping("/appointment/complete/{id}")
-    public Appointment setAppointmentCompletion(Principal principal,@PathVariable("id") Long id) {
-        return appointmentService.completeAppointment(principal.getName(),id);
+    public Appointment setAppointmentCompletion(Principal principal, @PathVariable("id") Long id) {
+        return appointmentService.completeAppointment(principal.getName(), id);
     }
 
     @GetMapping("/appointment/all/date-specialty")
@@ -69,7 +70,7 @@ public class AppointmentController {
             Principal principal,
             @RequestParam(name = "startdate") String startDate,
             @RequestParam(name = "enddate") String endDate,
-            @RequestParam(name = "specialty")String specName) throws ParseException {
+            @RequestParam(name = "specialty") String specName) throws ParseException {
 
         DateFormat format = new SimpleDateFormat("MM-dd-yyyy HH:mm");
         Date startingDate = format.parse(startDate);
@@ -89,7 +90,7 @@ public class AppointmentController {
             Principal principal,
             @RequestParam(name = "startdate") String startDate,
             @RequestParam(name = "enddate") String endDate,
-            @RequestParam(name = "description")String desc) throws ParseException {
+            @RequestParam(name = "description") String desc) throws ParseException {
 
         DateFormat format = new SimpleDateFormat("MM-dd-yyyy HH:mm");
         Date startingDate = format.parse(startDate);
@@ -118,7 +119,8 @@ public class AppointmentController {
     @DeleteMapping("appointment/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteAppointment(@PathVariable Long id) {
-        getAppointment(id);
-        appointmentRepository.deleteById(id);
+        Appointment appointment = getAppointment(id);
+        appointment.setDeleted(true);
+        appointmentRepository.save(appointment);
     }
 }

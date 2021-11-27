@@ -2,12 +2,8 @@ package org.team1.agent;
 
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
-import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
-import org.team1.models.Appointment;
-import org.team1.models.Client;
-import org.team1.models.Criticality;
-import org.team1.models.Doctor;
+import org.team1.models.*;
 import org.team1.utils.EmailUtils;
 
 import java.sql.*;
@@ -16,9 +12,9 @@ import java.util.List;
 
 public class EmailAgent extends Agent {
 
-    String url = "jdbc:mysql://localhost:3306/appointment?useSSL=false";
+    String url = "jdbc:mysql://localhost:3306/mydatabase?useSSL=false";
     String username = "root";
-    String password = "anish@123";
+    String password = "test1234";
     Connection connection = null;
 
     @Override
@@ -38,11 +34,11 @@ public class EmailAgent extends Agent {
             protected void onTick() {
                 try {
 
-                    System.out.println("EMAIL agent=============started" );
+                    System.out.println("EMAIL agent=============started");
                     PreparedStatement statement = connection.prepareStatement("select * from appointment where status = 'Scheduled'");
                     statement.execute();
                     ResultSet resultSet = statement.getResultSet();
-                    List<Appointment> appointments  =  new ArrayList<Appointment>();
+                    List<Appointment> appointments = new ArrayList<Appointment>();
                     while (resultSet.next()) {
                         Appointment appointment = new Appointment();
                         appointment.setId(Long.valueOf(resultSet.getString("id")));
@@ -65,9 +61,9 @@ public class EmailAgent extends Agent {
                             appointment.setClient(client);
                         }
 
-                        PreparedStatement stat1 = connection.prepareStatement("SELECT * from Doctor WHERE  id = ?");
+                        PreparedStatement stat1 = connection.prepareStatement("SELECT * from doctor WHERE  id = ?");
                         stat1.setLong(1, Long.parseLong(resultSet.getString("doctor_id")));
-                        ResultSet rs1 = stat.executeQuery();
+                        ResultSet rs1 = stat1.executeQuery();
                         while (rs1.next()) {
                             Doctor doctor = new Doctor();
                             doctor.setEmail(rs1.getString("email"));
@@ -82,18 +78,28 @@ public class EmailAgent extends Agent {
                         System.out.println(appointment);
                     }
                     for (Appointment appointment : appointments) {
-                        if(StringUtils.isEmpty(appointment.getEmail())) {
+                        if (StringUtils.isEmpty(appointment.getEmail())) {
                             System.out.println("sending mail");
                             String subject = "Appointment Booked";
-                            EmailUtils.main(appointment.getDoctor().getEmail(), subject,"Dear User,"
-                                    + "\n\n your appointment is scheduled with doctor : " +appointment.getDoctor().getFirstName()+
-                                    "\n\n At " + appointment.getDateTime());
+                            PreparedStatement statement1 = connection.prepareStatement("select * from meeting_date");
+                            ResultSet resultSet1 = statement1.executeQuery();
+                            MeetingData meetingData = new MeetingData();
+                            while (resultSet1.next()) {
+                                meetingData.setUrl(resultSet1.getString("url"));
+                                meetingData.setPassword(resultSet1.getString("password"));
+                                meetingData.setMeetingId(resultSet1.getString("meeting_id"));
+                            }
+                            EmailUtils.main(appointment.getDoctor().getEmail(), subject, "Dear User,"
+                                    + "<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() +
+                                    "<br> At " + appointment.getDateTime() + " <br> url -" + meetingData.getUrl() +
+                                    "<br> meeting id - " + meetingData.getMeetingId() +
+                                    "<br> password - " + meetingData.getPassword());
                             PreparedStatement stat1 = connection.prepareStatement("update appointment set email = 'yes' WHERE  id = ?");
                             stat1.setLong(1, appointment.getId());
                             stat1.executeUpdate();
                         }
                     }
-                    System.out.println("EMAIL agent=============Ended" );
+                    System.out.println("EMAIL agent=============Ended");
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }

@@ -7,23 +7,29 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.team1.utils.PdfUtil;
 import org.team1.exceptions.DoctorNotFoundException;
+import org.team1.models.Client;
 import org.team1.models.Doctor;
 import org.team1.models.Feedback;
 import org.team1.models.FeedbackDto;
+import org.team1.repositories.ClientRepository;
 import org.team1.repositories.DoctorRepository;
 import org.team1.repositories.FeedbackRepository;
 import org.team1.services.DoctorService;
+import org.team1.utils.PdfUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
 @RestController
+
 public class DoctorController {
     private final DoctorRepository doctorRepository;
     private final DoctorService doctorService;
+
+    @Autowired
+    private ClientRepository clientRepository;
 
     @Autowired
     private FeedbackRepository feedbackRepository;
@@ -34,15 +40,17 @@ public class DoctorController {
         this.doctorService = doctorService;
     }
 
-    @PostMapping(value = "/feedback",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public Feedback feedback( FeedbackDto feedback){
+    @CrossOrigin(origins = "*")
+    @PostMapping(value = "/feedback")
+    public Feedback feedback(@RequestBody FeedbackDto feedback) {
         System.out.println(feedback.toString());
         Feedback feedback1 = new Feedback();
-        feedback1.setFirstName(feedback.getFirstName());
-        feedback1.setLastName(feedback.getLastName());
-        feedback1.setEmail(feedback.getEmail());
+        Client client = clientRepository.findClientByEmailEquals(feedback.getPatientEmail());
+        Doctor doctor = doctorRepository.findByFirstNameAndEmail(feedback.getFirstName(), feedback.getEmail());
         feedback1.setFeedback(feedback.getFeedback());
-//        return feedback1;
+        feedback1.setDoctor(doctor);
+        feedback1.setClient(client);
+
         return feedbackRepository.save(feedback1);
     }
 
@@ -50,7 +58,7 @@ public class DoctorController {
             MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<InputStreamResource> employeeReport(@PathVariable("email") String email)
             throws IOException {
-        List<Feedback> employees =  feedbackRepository.findByEmail(email);
+        List<Feedback> employees = feedbackRepository.findByDoctor_Email(email);
 
         ByteArrayInputStream bis = PdfUtil.employeePDFReport(employees);
 
@@ -80,7 +88,7 @@ public class DoctorController {
 
 
     @GetMapping("/doc/all/spec/{specName}")
-    public List<Doctor> getDoctorsBySpecialty(@PathVariable String specName){
+    public List<Doctor> getDoctorsBySpecialty(@PathVariable String specName) {
         return doctorService.getDoctorsWithSpecialty(specName);
     }
 

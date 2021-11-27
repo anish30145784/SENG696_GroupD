@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 body {font-family: Arial, Helvetica, sans-serif;}
@@ -43,21 +45,66 @@ input[type=submit]:hover {
 
 <div class="container">
   <form action="http://localhost:8080/feedback"  method="post" >
-    <label for="fname">First Name</label>
-    <input type="text" id="fname" name="firstName" placeholder="Your name..">
-
-    <label for="lname">Last Name</label>
-    <input type="text" id="lname" name="lastName" placeholder="Your last name..">
+    <label for="fname">doctor Name</label>
+    <input type="text" id="fname" name="firstName" value="{doctor.name}" disabled>
     
-    <label for="lname">email</label>
-    <input type="text" id="email" name="email" placeholder="Your email..">
+    <label for="lname">doctor email</label>
+    <input type="text" id="email" name="email" value="{doctor.email}" disabled>
+
+    <label for="fname">patient Name</label>
+    <input type="text" id="pname" name="pName" value="{patient.name}" disabled>
+    
+    <label for="lname">patient email</label>
+    <input type="text" id="pemail" name="pEmail" value="{patient.email}" disabled>
 
     <label for="feedback">feedback</label>
     <textarea id="feedback" name="feedback" placeholder="Write something.." style="height:200px"></textarea>
 
-    <input type="submit" value="Submit">
+    <input type="button" onclick="func()" value="Submit">
   </form>
 </div>
 
 </body>
+<script>
+  function func(){
+    var doctorName = document.getElementById("fname").defaultValue;
+    var doctorEmail = document.getElementById("email").defaultValue;
+    var patientName = document.getElementById("pname").defaultValue;
+    var patientEmail = document.getElementById("pemail").defaultValue;
+    var feedback = document.getElementById("feedback").value;
+    console.log(doctorName,doctorEmail,patientName,patientEmail,feedback);
+
+     let updatedata = {
+      "firstName": doctorName,
+      "email": doctorEmail,
+      "patientName": patientName,
+      "patientEmail" : patientEmail,
+      "feedback": feedback
+    };
+
+    // var xhr = new XMLHttpRequest();
+    // xhr.open("POST", "http://localhost:8080/feedback", true);
+    // xhr.setRequestHeader('Content-Type', 'application/json');
+    // xhr.send(JSON.stringify(updatedata));
+
+    $.ajax({
+      url: "http://localhost:8080/feedback",
+      type: 'POST',
+      data: JSON.stringify(updatedata),
+      dataType: 'json',
+      crossDomain: true,
+      contentType: 'application/json',
+      success: function (data) {
+        $("#updateModal").modal();
+      },
+      statusCode: {
+        500: function () {
+          alert("Invalid data!");
+        }
+      }
+    });
+
+
+  }
+</script>
 </html>
