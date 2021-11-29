@@ -12,7 +12,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmailAgent extends Agent {
+public class EmailAgent extends EnhancedAgent {
 
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
@@ -30,6 +30,7 @@ public class EmailAgent extends Agent {
             e.printStackTrace();
         }
         System.out.println("Database connected!");
+        register("email");
         addBehaviour(new TickerBehaviour(this, 12000) {
 
             @Override

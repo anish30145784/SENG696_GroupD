@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AppointmentJadeAgent extends Agent {
+public class AppointmentJadeAgent extends EnhancedAgent {
 
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
@@ -43,6 +43,7 @@ public class AppointmentJadeAgent extends Agent {
         }
         System.out.println("Database connected!");
 
+        register("appointment");
 
         addBehaviour(new TickerBehaviour(this, 10000) {
             @Override

@@ -9,7 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class CancellationAgent extends Agent {
+public class CancellationAgent extends EnhancedAgent {
 
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
@@ -31,8 +31,7 @@ public class CancellationAgent extends Agent {
             e.printStackTrace();
         }
         System.out.println("Database connected!");
-
-
+        register("cancellation");
         addBehaviour(new TickerBehaviour(this, 10000) {
             @Override
             protected void onTick() {

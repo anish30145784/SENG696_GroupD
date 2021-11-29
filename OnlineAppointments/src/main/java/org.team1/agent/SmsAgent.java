@@ -10,7 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SmsAgent extends Agent {
+public class SmsAgent extends EnhancedAgent {
 
 
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
@@ -29,6 +29,7 @@ public class SmsAgent extends Agent {
             e.printStackTrace();
         }
         System.out.println("Database connected!");
+        register("sms");
         addBehaviour(new TickerBehaviour(this, 15000) {
 
             @Override

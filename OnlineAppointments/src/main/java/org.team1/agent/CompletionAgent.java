@@ -14,7 +14,7 @@ import java.sql.*;
 import java.util.Date;
 import java.util.*;
 
-public class CompletionAgent extends Agent {
+public class CompletionAgent extends EnhancedAgent {
 
 
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
@@ -33,6 +33,7 @@ public class CompletionAgent extends Agent {
             e.printStackTrace();
         }
         System.out.println("Database connected!");
+        register("completion");
         addBehaviour(new TickerBehaviour(this, 17000) {
 
             @Override
