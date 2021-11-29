@@ -30,13 +30,13 @@ function populateDataTableAndUpdate(appointments) {
              });
            $("#appointments").append("</tbody>");
 
-            $('#appointments').DataTable({
-                   "bFilter": false,
-                   "columnDefs": [
-                     { "orderable": false, "targets": 3 },
-                     { "orderable": false, "targets": 4 }
-                           ]
-                  });
+            // $('#appointments').DataTable({
+            //        "bFilter": false,
+            //        "columnDefs": [
+            //          { "orderable": true, "targets": 3 },
+            //          { "orderable": true, "targets": 4 }
+            //                ]
+            //       });
 
 }
 
@@ -100,6 +100,12 @@ $(document).ready(function() {
    let json = JSON.parse(sessionStorage.getItem(SESSION_STORAGE_LOGIN_TOKEN_NAME));
    let userw=json.userName;
    document.getElementById("welcome").innerHTML = "You are connected as " + userw;
+     $.ajax({
+        url: ROOT_PATH + "/clients/user/"+userw
+    }).then(function(client) {
+        document.getElementById("name").innerHTML = client.firstName;
+        document.getElementById("email").innerHTML = client.email;
+    });
    $.ajax({
         url: ROOT_PATH + "/appointment/all/client"
     }).then(function(appointments) {
@@ -192,7 +198,10 @@ $(document).ready(function() {
         let timeA=$("input[name=time]").val();
         let dateTime=dateA.concat(" ",timeA);
         let description=$("#briefdescription").val();
+        let breed = $("#breed").val();
+        let age = $("#age").val();
         let criticality=$("#criticality option:selected").val();
+        //criticality = criticality ==='URGENT'?1:2;
         let notes=$("#notes").val();
         let dataAppointment = {
               "doctor":   {
@@ -201,7 +210,9 @@ $(document).ready(function() {
               "dateTime": dateTime,
               "description": description,
               "notes": notes,
-              "criticality":criticality
+              "criticality":criticality,
+              "breed":breed,
+              "age":age
             };
          $.ajax({
              url:  ROOT_PATH + '/appointment/new',

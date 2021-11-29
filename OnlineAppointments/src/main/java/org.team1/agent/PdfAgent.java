@@ -11,7 +11,7 @@ import java.sql.*;
 
 public class PdfAgent extends Agent {
 
-    String url = "jdbc:mysql://localhost:3306/mydatabase?useSSL=false";
+    String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
     String password = "test1234";
     Connection connection = null;
@@ -19,7 +19,7 @@ public class PdfAgent extends Agent {
     @Override
     public void setup() {
 
-        System.out.println("Connecting database...");
+        System.out.println("Connecting database inside PDF Agent...");
 
         try {
             connection = DriverManager.getConnection(url, username, password);
@@ -67,7 +67,7 @@ public class PdfAgent extends Agent {
                         }
                         String subject = "Feedback: Pdf has been generated!! click below link to generate PDF";
                         String body = "http://localhost:8080/feedback/pdf/" + feedback.getDoctor().getEmail();
-                        EmailUtils.main(feedback.getDoctor().getEmail(), subject, body);
+                        EmailUtils.main(feedback.getClient().getEmail(), subject, body);
                         PreparedStatement stat2 = connection.prepareStatement("update feedback set mail_send = 'yes' WHERE  id = ?");
                         stat2.setLong(1, feedback.getId());
                         stat2.executeUpdate();

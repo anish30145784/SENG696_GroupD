@@ -19,12 +19,12 @@ function populateDataTable(appointments) {
              });
            $("#appointments").append("</tbody>");
 
-            $('#appointments').DataTable({
-                   "bFilter": false,
-                   "columnDefs": [
-                     { "orderable": false, "targets": 3 },
-                           ]
-                  });
+            // $('#appointments').DataTable({
+            //        "bFilter": false,
+            //        "columnDefs": [
+            //          { "orderable": true, "targets": 3 },
+            //                ]
+            //       });
 
 }
 
@@ -66,6 +66,15 @@ $(document).ready(function() {
    let json = JSON.parse(sessionStorage.getItem(SESSION_STORAGE_LOGIN_TOKEN_NAME));
    let userw=json.userName;
    document.getElementById("welcome").innerHTML = "You are connected as " + userw;
+   document.getElementById("name").innerHTML = userw;
+   document.getElementById("email").innerHTML = "mail2anish696@gmail.com"
+    $.ajax({
+        url: ROOT_PATH + "/doctor/user/"+userw
+    }).then(function(doctor) {
+        document.getElementById("name").innerHTML = doctor.firstName;
+        document.getElementById("email").innerHTML = doctor.email;
+    });
+
    $.ajax({
         url: ROOT_PATH + "/appointment/all/doctor"
     }).then(function(appointments) {

@@ -9,7 +9,6 @@ import org.team1.exceptions.ClientEmailExistsException;
 import org.team1.exceptions.ClientNotFoundException;
 import org.team1.exceptions.ClientParamsException;
 import org.team1.models.Client;
-
 import org.team1.repositories.ClientRepository;
 import org.team1.services.ClientService;
 
@@ -35,12 +34,19 @@ public class ClientController {
     }
 
     @GetMapping("/clients")
-    public List<Client> getClients() { return clientRepository.findAll(); }
+    public List<Client> getClients() {
+        return clientRepository.findAll();
+    }
 
     @GetMapping("/clients/{id}") //done
     public Client getClient(@PathVariable String id) {
         return clientRepository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException(id));
+    }
+
+    @GetMapping("/clients/user/{userName}") //done
+    public Client getClientByUserName(@PathVariable String userName) {
+        return clientRepository.findByUsername(userName);
     }
 
     @PutMapping("/clients/{id}")

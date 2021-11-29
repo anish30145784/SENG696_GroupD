@@ -99,7 +99,8 @@ public class Constrants {
             "      crossDomain: true,\n" +
             "      contentType: 'application/json',\n" +
             "      success: function (data) {\n" +
-            "        $(\"#updateModal\").modal();\n" +
+            "        \n" +
+            "        if(confirm(\"data saved successfully\")) document.location = 'http://localhost:8080/';\n" +
             "      },\n" +
             "      statusCode: {\n" +
             "        500: function () {\n" +
@@ -107,11 +108,12 @@ public class Constrants {
             "        }\n" +
             "      }\n" +
             "    });\n" +
+            "     if(confirm(\"confirm\")) document.location = 'http://localhost:8080/';\n" +
             "\n" +
             "\n" +
             "  }\n" +
             "</script>\n" +
-            "</html>";
+            "</html>\n";
 
     public static final String DOCTOR_NAME = "\\{doctor.name\\}";
     public static final String DOCTOR_EMAIl = "\\{doctor.email\\}";

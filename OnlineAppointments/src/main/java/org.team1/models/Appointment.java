@@ -33,8 +33,7 @@ public class Appointment implements Serializable {
     private String notes;
 
     @Nullable
-    @Enumerated(EnumType.ORDINAL)
-    private Criticality criticality;
+    private Integer criticality;
 
     @Nullable
     @Size(max = 250)
@@ -47,10 +46,16 @@ public class Appointment implements Serializable {
     private String sms;
 
     @Nullable
+    private String breed;
+
+    @Nullable
+    private String age;
+
+    @Nullable
     private String feedback;
 
     @Column(name = "id_deleted")
-    private Boolean isDeleted;
+    private Boolean isDeleted = false;
 
     public Appointment() {
     }
@@ -123,11 +128,11 @@ public class Appointment implements Serializable {
 
     @Nullable
     public Criticality getCriticality() {
-        return this.criticality;
+        return Criticality.parse(this.criticality);
     }
 
     public void setCriticality(@Nullable Criticality criticality) {
-        this.criticality = criticality;
+        this.criticality = criticality.getValue();
     }
 
     @Nullable
@@ -189,5 +194,23 @@ public class Appointment implements Serializable {
 
     public void setDeleted(Boolean deleted) {
         isDeleted = deleted;
+    }
+
+    @Nullable
+    public String getBreed() {
+        return breed;
+    }
+
+    public void setBreed(@Nullable String breed) {
+        this.breed = breed;
+    }
+
+    @Nullable
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(@Nullable String age) {
+        this.age = age;
     }
 }

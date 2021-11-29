@@ -39,6 +39,13 @@ public class Client implements Serializable {
     @Email
     private String email;
 
+
+    @Nullable
+    private String breed;
+
+    @Nullable
+    private String age;
+
     private Set<Appointment> appointments;
 
     public Client(){}
@@ -55,7 +62,7 @@ public class Client implements Serializable {
     }
 
     @Id
-    @Column(unique = true, nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -116,5 +123,23 @@ public class Client implements Serializable {
                 + ",username=" + username
                 + ",password=" + password
                 + '\'' + '}';
+    }
+
+    @Nullable
+    public String getBreed() {
+        return breed;
+    }
+
+    public void setBreed(@Nullable String breed) {
+        this.breed = breed;
+    }
+
+    @Nullable
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(@Nullable String age) {
+        this.age = age;
     }
 }

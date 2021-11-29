@@ -1,18 +1,14 @@
 package org.team1.utils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
-import java.util.Properties;
+import org.springframework.stereotype.Service;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.util.Properties;
 
 @Service
-public class EmailUtils{
+public class EmailUtils {
 
     public static void main(String to, String subject, String body) {
 
@@ -38,7 +34,7 @@ public class EmailUtils{
             message.setFrom(new InternetAddress("mail2anish696@gmail.com"));
 
             message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse("mail2anish696@gmail.com"));
+                    InternetAddress.parse(to));
             message.setSubject(subject);
             message.setText(body);
             message.setContent(body, "text/html; charset=utf-8");

@@ -2,25 +2,21 @@ package org.team1.utils;
 
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SmsUtil {
 
-    public static final String ACCOUNT_SID = "AC5f47f1500a21b11a7cb8c0b1b6ddc1c7";
-    public static final String AUTH_TOKEN = "0307b475beb70c6159bd5b48b1eccfc3";
+    public static final String ACCOUNT_SID = "ACd7d2f411ca83a29bbc446adca095a516";
+    public static final String AUTH_TOKEN = "1c0ffe847b39407ee1cba8b8fd2efe2c";
+    public static final String TRIAL_NUMBER = "+16672205255";
 
-
-    //    static {
-//        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
-//    }
-    public static void main(String body) throws Exception {
+    public static void main(String body, Long to) throws Exception {
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+        String toNumber = "+1" + to.toString();
         Message message = Message.creator(
-                        new com.twilio.type.PhoneNumber("+919205058292"),
-                        "MGd5dc9fe0fc424fc51bd7844357eb6973",
-                        body)
-                .create();
+                new PhoneNumber(toNumber), new PhoneNumber(TRIAL_NUMBER), body).create();
 
         System.out.println(message.getSid());
     }

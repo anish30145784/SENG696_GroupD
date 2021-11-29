@@ -95,7 +95,8 @@ input[type=submit]:hover {
       crossDomain: true,
       contentType: 'application/json',
       success: function (data) {
-        $("#updateModal").modal();
+        
+        if(confirm("data saved successfully")) document.location = 'http://localhost:8080/';
       },
       statusCode: {
         500: function () {
@@ -103,6 +104,7 @@ input[type=submit]:hover {
         }
       }
     });
+     if(confirm("confirm")) document.location = 'http://localhost:8080/';
 
 
   }

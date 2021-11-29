@@ -14,13 +14,15 @@ import org.team1.models.Criticality;
 import org.team1.models.Doctor;
 
 import java.sql.*;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AppointmentJadeAgent extends Agent {
 
-    String url = "jdbc:mysql://localhost:3306/mydatabase?useSSL=false";
+    String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
     String password = "test1234";
     Connection connection = null;
@@ -31,7 +33,7 @@ public class AppointmentJadeAgent extends Agent {
     @Override
     public void setup() {
 
-        System.out.println("Connecting database...");
+        System.out.println("Connecting database inside Appointment Agent...");
 
 
         try {
@@ -55,11 +57,14 @@ public class AppointmentJadeAgent extends Agent {
                     while (resultSet.next()) {
                         Appointment appointment = new Appointment();
                         appointment.setId(Long.valueOf(resultSet.getString("id")));
+                        appointment.setBreed(resultSet.getString("breed"));
+                        appointment.setAge(resultSet.getString("age"));
                         appointment.setCriticality(Criticality.parse(resultSet.getInt("criticality")));
                         appointment.setStatus(resultSet.getString("status"));
                         appointment.setDescription(resultSet.getString("description"));
                         appointment.setNotes(resultSet.getString("notes"));
                         appointment.setDateTime(resultSet.getTimestamp("datetime"));
+                        System.out.println("Date Time : " + resultSet.getTimestamp("datetime"));
                         PreparedStatement stat = connection.prepareStatement("SELECT * from client WHERE  id = ?");
                         stat.setLong(1, Long.parseLong(resultSet.getString("client_id")));
                         ResultSet rs = stat.executeQuery();
@@ -68,6 +73,7 @@ public class AppointmentJadeAgent extends Agent {
                             client.setEmail(rs.getString("email"));
                             client.setUsername(rs.getString("username"));
                             client.setFirstName(rs.getString("first_name"));
+                            client.setLastName(rs.getString("last_name"));
                             client.setId(rs.getString("id"));
                             client.setPhone(Long.valueOf(rs.getString("phone")));
                             appointment.setClient(client);
@@ -81,6 +87,7 @@ public class AppointmentJadeAgent extends Agent {
                             doctor.setEmail(rs1.getString("email"));
                             doctor.setUsername(rs1.getString("username"));
                             doctor.setFirstName(rs1.getString("first_name"));
+                            doctor.setLastName(rs1.getString("last_name"));
                             doctor.setId(rs1.getString("id"));
                             doctor.setPhone(Long.valueOf(rs1.getString("phone")));
                             appointment.setDoctor(doctor);
@@ -90,20 +97,39 @@ public class AppointmentJadeAgent extends Agent {
                         System.out.println(appointment);
                     }
                     for (Appointment appointment : appointments) {
-
-                        if (appointment != null) {
-                            PreparedStatement stat2 = connection.prepareStatement("Update appointment set status = 'Scheduled' where id = ?");
-                            stat2.setLong(1, appointment.getId());
-                            stat2.executeUpdate();
+                        boolean match = false;
+                        if (appointment.getCriticality() == Criticality.URGENT)
+                            System.out.println("handling Urgent Criticality");
+                        while (match) {
+                            Optional<Appointment> appointment1 = appointments.stream().filter(d -> d.getDateTime().equals(appointment.getDateTime())).findAny();
+                            if (appointment1.isPresent()) {
+                                appointment.setDateTime(Date.from(appointment.getDateTime().toInstant().plus(1, ChronoUnit.HOURS)));
+                                match = true;
+                            } else {
+                                match = false;
+                            }
 
                         }
+                        PreparedStatement stat2 = connection.prepareStatement("Update appointment set datetime = ? where id = ?");
+                        stat2.setTimestamp(1, new Timestamp(appointment.getDateTime().getTime()));
+                        stat2.setLong(2, appointment.getId());
+                        stat2.executeUpdate();
+
+                        if (appointment != null) {
+                            PreparedStatement stat3 = connection.prepareStatement("Update appointment set status = 'Scheduled' where id = ?");
+                            stat3.setLong(1, appointment.getId());
+                            stat3.executeUpdate();
+
+                        }
+
+                        ACLMessage aclmsg = new ACLMessage(ACLMessage.REQUEST);
+                        aclmsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
+                        aclmsg.setContentObject(appointment);
+                        send(aclmsg);
+
                     }
                     System.out.println("Appointment agent=============Ended");
 
-                    ACLMessage message = new ACLMessage(ACLMessage.INFORM);
-                    message.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
-                    message.setContent("start Sending email");
-                    send(message);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

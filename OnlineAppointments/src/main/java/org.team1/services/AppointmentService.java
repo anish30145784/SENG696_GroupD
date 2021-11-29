@@ -27,7 +27,10 @@ public class AppointmentService {
     public Appointment createAppointment(Appointment appointment, Client client) {
 
         Appointment newAppointment = new Appointment();
-
+        client.setBreed(appointment.getBreed());
+        client.setAge(appointment.getAge());
+        newAppointment.setAge(client.getAge());
+        newAppointment.setBreed(client.getBreed());
         newAppointment.setClient(client);
         newAppointment.setDoctor(doctorService.findDoctorByAmka(appointment.getDoctor().getId()));
         newAppointment.setDateTime(appointment.getDateTime());
@@ -51,11 +54,16 @@ public class AppointmentService {
     }
 
     public List<Appointment> getAppointmentsByClientUsername(String username) {
-        return appointmentRepository.findAppointmentsByClientUsernameEquals(username).stream().filter(d -> d.getDeleted() == Boolean.FALSE).collect(Collectors.toList());
+
+        List<Appointment> appointments = appointmentRepository.findAppointmentsByClientUsernameEqualsOrderByIdDesc(username).stream().filter(d -> d.getDeleted() == Boolean.FALSE).collect(Collectors.toList());
+        //appointments.sort((o1, o2) -> o1.getDateTime().compareTo(o2.getDateTime()));
+        return appointments;
     }
 
     public List<Appointment> getAppointmentsByDoctorUsername(String username) {
-        return appointmentRepository.findAppointmentsByDoctorUsernameEquals(username).stream().filter(d -> d.getDeleted() == Boolean.FALSE).collect(Collectors.toList());
+        List<Appointment> appointments = appointmentRepository.findAppointmentsByDoctorUsernameEqualsOrderByIdDesc(username).stream().filter(d -> d.getDeleted() == Boolean.FALSE).collect(Collectors.toList());
+        // appointments.sort((o1, o2) -> o1.getDateTime().compareTo(o2.getDateTime()));
+        return appointments;
     }
 
     public List<Appointment> getAppointmentsBetweenDatesAndBySpecialty(Date startDate, Date endDate, String specName) {

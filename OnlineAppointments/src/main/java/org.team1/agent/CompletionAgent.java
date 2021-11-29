@@ -7,20 +7,17 @@ import org.team1.models.Appointment;
 import org.team1.models.Client;
 import org.team1.models.Criticality;
 import org.team1.models.Doctor;
-import org.team1.utils.CommonUtils;
 import org.team1.utils.Constrants;
 import org.team1.utils.EmailUtils;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Date;
+import java.util.*;
 
 public class CompletionAgent extends Agent {
 
 
-    String url = "jdbc:mysql://localhost:3306/mydatabase?useSSL=false";
+    String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
     String password = "test1234";
     Connection connection = null;
@@ -28,7 +25,7 @@ public class CompletionAgent extends Agent {
     @Override
     public void setup() {
 
-        System.out.println("Connecting database...");
+        System.out.println("Connecting database inside Completion Agent...");
 
         try {
             connection = DriverManager.getConnection(url, username, password);
@@ -56,17 +53,21 @@ public class CompletionAgent extends Agent {
                         appointment.setEmail(resultSet.getString("email"));
                         appointment.setSms(resultSet.getString("sms"));
                         appointment.setFeedback(resultSet.getString("feedback"));
+                        appointment.setDateTime(resultSet.getTimestamp("datetime"));
                         PreparedStatement stat = connection.prepareStatement("SELECT * from client WHERE  id = ?");
                         stat.setLong(1, Long.parseLong(resultSet.getString("client_id")));
                         ResultSet rs = stat.executeQuery();
+                        String patientName;
                         while (rs.next()) {
                             Client client = new Client();
                             client.setEmail(rs.getString("email"));
                             client.setUsername(rs.getString("username"));
                             client.setFirstName(rs.getString("first_name"));
+                            client.setLastName(rs.getString("last_name"));
                             client.setId(rs.getString("id"));
                             client.setPhone(Long.valueOf(rs.getString("phone")));
                             appointment.setClient(client);
+
                         }
 
                         PreparedStatement stat1 = connection.prepareStatement("SELECT * from doctor WHERE  id = ?");
@@ -88,15 +89,21 @@ public class CompletionAgent extends Agent {
                     for (Appointment appointment : appointments) {
                         if (StringUtils.isEmpty(appointment.getFeedback())) {
                             System.out.println("sending feedback mail");
+                            if (appointment.getDateTime().before(new Date()) && appointment.getStatus().equalsIgnoreCase("Scheduled")) {
+                                PreparedStatement stat3 = connection.prepareStatement("Update appointment set status = 'Completed' where id = ?");
+                                stat3.setLong(1, appointment.getId());
+                                stat3.executeUpdate();
+                            }
 
-                            String subject = "Feedback: patient name " + appointment.getClient().getLastName();
+                            String subject = "Feedback for : " + appointment.getClient().getFirstName() + " " + appointment.getClient().getLastName();
                             Map<String, String> map = new HashMap<>();
                             map.put(Constrants.DOCTOR_NAME, appointment.getDoctor().getFirstName());
                             map.put(Constrants.DOCTOR_EMAIl, appointment.getDoctor().getEmail());
                             map.put(Constrants.PATIENT_NAME, appointment.getClient().getFirstName());
                             map.put(Constrants.PATIENT_EMAIL, appointment.getClient().getEmail());
 
-                            String body = CommonUtils.replaceText(Constrants.EMAIl_TEMPLATE_FEEDBACK, map);
+                            String body = "click on link to provide feedback : http://localhost:8080/feedback?dName=" + appointment.getDoctor().getFirstName() + "&dEmail=" + appointment.getDoctor().getEmail() + "&pName=" + appointment.getClient().getFirstName() + "&pEmail=" + appointment.getClient().getEmail();
+                            // System.out.println("Doctor EMail : " + appointment.getDoctor().getEmail());
                             EmailUtils.main(appointment.getDoctor().getEmail(), subject, body);
 
                             PreparedStatement stat1 = connection.prepareStatement("update appointment set feedback = 'yes' WHERE  id = ?");

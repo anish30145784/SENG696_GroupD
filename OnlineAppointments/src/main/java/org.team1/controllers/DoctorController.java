@@ -8,19 +8,22 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.team1.exceptions.DoctorNotFoundException;
-import org.team1.models.Client;
-import org.team1.models.Doctor;
-import org.team1.models.Feedback;
-import org.team1.models.FeedbackDto;
+import org.team1.models.*;
+import org.team1.repositories.AppointmentRepository;
 import org.team1.repositories.ClientRepository;
 import org.team1.repositories.DoctorRepository;
 import org.team1.repositories.FeedbackRepository;
 import org.team1.services.DoctorService;
+import org.team1.utils.CommonUtils;
+import org.team1.utils.Constrants;
 import org.team1.utils.PdfUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 
@@ -32,6 +35,9 @@ public class DoctorController {
     private ClientRepository clientRepository;
 
     @Autowired
+    private AppointmentRepository appointmentRepository;
+
+    @Autowired
     private FeedbackRepository feedbackRepository;
 
     @Autowired
@@ -40,7 +46,7 @@ public class DoctorController {
         this.doctorService = doctorService;
     }
 
-    @CrossOrigin(origins = "*")
+
     @PostMapping(value = "/feedback")
     public Feedback feedback(@RequestBody FeedbackDto feedback) {
         System.out.println(feedback.toString());
@@ -50,15 +56,34 @@ public class DoctorController {
         feedback1.setFeedback(feedback.getFeedback());
         feedback1.setDoctor(doctor);
         feedback1.setClient(client);
+        feedback1.setCreatedDate(Instant.now());
 
         return feedbackRepository.save(feedback1);
     }
+
+    @GetMapping(value = "/feedback", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String feedback(@RequestParam("dName") String dName, @RequestParam("dEmail") String dEmail, @RequestParam("pName") String pName, @RequestParam("pEmail") String pEmail) {
+
+
+        Map<String, String> map = new HashMap<>();
+        map.put(Constrants.DOCTOR_NAME, dName);
+        map.put(Constrants.DOCTOR_EMAIl, dEmail);
+        map.put(Constrants.PATIENT_NAME, pName);
+        map.put(Constrants.PATIENT_EMAIL, pEmail);
+
+        String body = CommonUtils.replaceText(Constrants.EMAIl_TEMPLATE_FEEDBACK, map);
+        return body;
+    }
+    //  , produces = MediaType.TEXT_HTML_VALUE
 
     @GetMapping(value = "/feedback/pdf/{email}", produces =
             MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<InputStreamResource> employeeReport(@PathVariable("email") String email)
             throws IOException {
-        List<Feedback> employees = feedbackRepository.findByDoctor_Email(email);
+        System.out.println("email : " + email);
+        Appointment appointment = appointmentRepository.findAppointmentsByDoctorEmailEqualsOrderByIdDesc(email).stream().findFirst().get();
+        List<Feedback> employees = feedbackRepository.findByDoctor_EmailOrderByIdDesc(email);
 
         ByteArrayInputStream bis = PdfUtil.employeePDFReport(employees);
 
@@ -107,6 +132,11 @@ public class DoctorController {
     public void deleteDoctor(@PathVariable String id) {
         getDoctor(id);
         doctorRepository.deleteById(id);
+    }
+
+    @GetMapping("/doctor/user/{userName}") //done
+    public Doctor getDoctorByUsername(@PathVariable String userName) {
+        return doctorRepository.findByUsername(userName);
     }
 }
 

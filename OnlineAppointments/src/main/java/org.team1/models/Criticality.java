@@ -1,7 +1,7 @@
 package org.team1.models;
 
 public enum Criticality {
-    REGULAR, URGENT;
+    REGULAR(0), URGENT(1);
 
     private int value;
 
@@ -9,9 +9,6 @@ public enum Criticality {
         this.value = value;
     }
 
-    Criticality() {
-
-    }
 
     public static Criticality parse(int id) {
         Criticality criticality = null; // Default
@@ -22,6 +19,11 @@ public enum Criticality {
             }
         }
         return criticality;
+    }
+
+    public static Criticality parse(Criticality id) {
+
+        return id;
     }
 
     public int getValue() {

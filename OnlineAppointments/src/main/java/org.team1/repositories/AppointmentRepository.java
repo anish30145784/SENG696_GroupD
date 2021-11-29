@@ -19,7 +19,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findAppointmentsByDateTimeBetweenAndDescriptionContaining(Date startDate, Date endDate, String description);
 
 
+    //@Query(value = "select a from Appointment a where a.client.username = :username and a.isDeleted = 0 order by a.datetime desc")
+    List<Appointment> findAppointmentsByClientUsernameEqualsOrderByIdDesc(String username);
 
+    // @Query(value = "select a from Appointment a where a.doctor.username = :username and a.isDeleted = 0 order by a.datetime desc")
+    List<Appointment> findAppointmentsByDoctorUsernameEqualsOrderByIdDesc(String username);
 
-
+    List<Appointment> findAppointmentsByDoctorEmailEqualsOrderByIdDesc(String username);
 }

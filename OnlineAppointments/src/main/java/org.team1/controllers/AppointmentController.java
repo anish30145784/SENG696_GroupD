@@ -6,9 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import org.team1.exceptions.AppointmentNotFoundException;
 import org.team1.models.Appointment;
 import org.team1.models.Client;
+import org.team1.models.MeetingData;
 import org.team1.repositories.AppointmentRepository;
+import org.team1.repositories.MeetingRepository;
 import org.team1.services.AppointmentService;
 import org.team1.services.ClientService;
+import org.team1.utils.EmailUtils;
 
 import javax.validation.Valid;
 import java.security.Principal;
@@ -24,6 +27,9 @@ public class AppointmentController {
     private final AppointmentRepository appointmentRepository;
     private AppointmentService appointmentService;
     private ClientService clientService;
+
+    @Autowired
+    private MeetingRepository meetingRepository;
 
     @Autowired
     public AppointmentController(AppointmentRepository appointmentRepository,
@@ -49,6 +55,7 @@ public class AppointmentController {
         Client client = clientService.findByUserName(principal.getName());
         return appointmentService.createAppointment(appointment, client);
     }
+
 
     @GetMapping("/appointment/all/client")
     public List<Appointment> getAppointmentsByClient(Principal principal) {
@@ -111,6 +118,12 @@ public class AppointmentController {
                     appointment.setDateTime(updateAppointment.getDateTime());
                     appointment.setDescription(updateAppointment.getDescription());
                     appointment.setNotes(updateAppointment.getNotes());
+                    MeetingData meetingData = meetingRepository.findAll().get(0);
+                    EmailUtils.main(appointment.getDoctor().getEmail(), "Appointment Updated", "Dear User,"
+                            + "<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() +
+                            "<br> At " + appointment.getDateTime() + " <br> url -" + meetingData.getUrl() +
+                            "<br> meeting id - " + meetingData.getMeetingId() +
+                            "<br> password - " + meetingData.getPassword());
                     return appointmentRepository.save(appointment);
                 })
                 .orElseThrow(() -> new AppointmentNotFoundException(id));

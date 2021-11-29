@@ -31,7 +31,7 @@ public class WebAppConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private MyUserDetailsService myUserDetailsService;
-
+    private SimpleUrlAuthenticationFailureHandler myFailureHandler = new SimpleUrlAuthenticationFailureHandler();
 
     @Bean
     public DaoAuthenticationProvider userAuthenticationProvider() {
@@ -40,8 +40,6 @@ public class WebAppConfig extends WebSecurityConfigurerAdapter {
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
-
-    private SimpleUrlAuthenticationFailureHandler myFailureHandler = new SimpleUrlAuthenticationFailureHandler();
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -64,6 +62,7 @@ public class WebAppConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/appointment/**").authenticated()
                 .antMatchers("/doc//**").authenticated()
                 .antMatchers("/feedback").permitAll()
+                .antMatchers("/doctor/user/**").permitAll()
                 .and()
                 .formLogin()
                 .successHandler(mySuccessHandler)

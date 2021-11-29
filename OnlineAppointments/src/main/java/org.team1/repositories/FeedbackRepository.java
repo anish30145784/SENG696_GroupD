@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
-    List<Feedback> findByDoctor_Email(String email);
+    List<Feedback> findByDoctor_EmailOrderByIdDesc(String email);
 }

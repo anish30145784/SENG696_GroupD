@@ -13,7 +13,7 @@ import java.util.List;
 public class SmsAgent extends Agent {
 
 
-    String url = "jdbc:mysql://localhost:3306/mydatabase?useSSL=false";
+    String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
     String password = "test1234";
     Connection connection = null;
@@ -21,7 +21,7 @@ public class SmsAgent extends Agent {
     @Override
     public void setup() {
 
-        System.out.println("Connecting database...");
+        System.out.println("Connecting database inside SMS Agent...");
 
         try {
             connection = DriverManager.getConnection(url, username, password);
@@ -42,6 +42,10 @@ public class SmsAgent extends Agent {
                     while (resultSet.next()) {
                         Appointment appointment = new Appointment();
                         appointment.setId(Long.valueOf(resultSet.getString("id")));
+                        //System.out.println("Appointment DateTime in SMS : " + resultSet.getDate("dateTime"));
+                        appointment.setDateTime(resultSet.getTimestamp("dateTime"));
+                        appointment.setDescription(resultSet.getString("description"));
+                        appointment.setNotes(resultSet.getString("notes"));
                         appointment.setCriticality(Criticality.parse(resultSet.getInt("criticality")));
                         appointment.setStatus(resultSet.getString("status"));
                         appointment.setDescription(resultSet.getString("description"));
@@ -69,6 +73,7 @@ public class SmsAgent extends Agent {
                             doctor.setEmail(rs1.getString("email"));
                             doctor.setUsername(rs1.getString("username"));
                             doctor.setFirstName(rs1.getString("first_name"));
+                            doctor.setLastName(rs1.getString("last_name"));
                             doctor.setId(rs1.getString("id"));
                             doctor.setPhone(Long.valueOf(rs1.getString("phone")));
                             appointment.setDoctor(doctor);
@@ -87,11 +92,11 @@ public class SmsAgent extends Agent {
                                 meetingData.setPassword(resultSet1.getString("password"));
                                 meetingData.setMeetingId(resultSet1.getString("meeting_id"));
                             }
-                            SmsUtil.main("Dear User,"
-                                    + "<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() +
-                                    "<br> At " + appointment.getDateTime() + " <br> url -" + meetingData.getUrl() +
-                                    "<br> meeting id - " + meetingData.getMeetingId() +
-                                    "<br> password - " + meetingData.getPassword());
+                            SmsUtil.main("Dear " + appointment.getClient().getFirstName()
+                                    + ",\n your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +
+                                    "\n At " + appointment.getDateTime() + " \n url -" + meetingData.getUrl() +
+                                    "\n meeting id - " + meetingData.getMeetingId() +
+                                    "\n password - " + meetingData.getPassword(), appointment.getClient().getPhone());
                             PreparedStatement stat1 = connection.prepareStatement("update appointment set sms = 'yes' WHERE  id = ?");
                             stat1.setLong(1, appointment.getId());
                             stat1.executeUpdate();

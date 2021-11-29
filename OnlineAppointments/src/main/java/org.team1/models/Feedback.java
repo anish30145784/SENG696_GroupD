@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.Instant;
 
 @Entity
 @Table(name = "feedback")
@@ -30,6 +31,9 @@ public class Feedback implements Serializable {
 
     @Column(name = "mail_send")
     private String mailSend;
+
+    @Column(name = "created_date")
+    private Instant createdDate;
 
 
 }
