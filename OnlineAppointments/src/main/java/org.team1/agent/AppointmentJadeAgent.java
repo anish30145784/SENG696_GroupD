@@ -14,13 +14,14 @@ import org.team1.models.Criticality;
 import org.team1.models.Doctor;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AppointmentJadeAgent extends EnhancedAgent {
+    public Set<AID> emails = new HashSet<>();
+    public Set<AID> appointments = new HashSet<>();
 
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
@@ -43,7 +44,11 @@ public class AppointmentJadeAgent extends EnhancedAgent {
         }
         System.out.println("Database connected!");
 
-        register("appointment");
+        appointments= searchForService("appointment");
+        if (appointments.isEmpty())
+        {
+            register("appointment");
+        }
 
         addBehaviour(new TickerBehaviour(this, 10000) {
             @Override
@@ -123,8 +128,12 @@ public class AppointmentJadeAgent extends EnhancedAgent {
 
                         }
 
+                        emails= searchForService("email");
+
                         ACLMessage aclmsg = new ACLMessage(ACLMessage.REQUEST);
-                        aclmsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
+                        for (AID agent: emails) {
+                            aclmsg.addReceiver(agent);
+                        }
                         aclmsg.setContentObject(appointment);
                         send(aclmsg);
 
