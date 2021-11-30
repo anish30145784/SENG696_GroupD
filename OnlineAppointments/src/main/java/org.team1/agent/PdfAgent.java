@@ -9,7 +9,7 @@ import org.team1.utils.EmailUtils;
 
 import java.sql.*;
 
-public class PdfAgent extends Agent {
+public class PdfAgent extends EnhancedAgent {
 
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
@@ -27,6 +27,8 @@ public class PdfAgent extends Agent {
             e.printStackTrace();
         }
         System.out.println("Database connected!");
+        register("pdf");
+
         addBehaviour(new TickerBehaviour(this, 19000) {
 
             @Override

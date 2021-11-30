@@ -3,9 +3,10 @@ package org.team1.agent;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
 
-public class ClinicAgent extends Agent {
+public class ClinicAgent extends EnhancedAgent {
     @Override
     protected void setup() {
+        register("Clinic");
         System.out.println("Inside Clinic Agent ... ");
         addBehaviour(new OneShotBehaviour() {
             @Override
