@@ -12,14 +12,18 @@ import org.team1.utils.EmailUtils;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ClinicAgent extends EnhancedAgent {
+    public Set<AID> emailA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
     String password = "test1234";
     Connection connection = null;
     String task = null;
+
 
     @Autowired
     private JdbcTemplate appointmentRepository;
@@ -27,6 +31,7 @@ public class ClinicAgent extends EnhancedAgent {
     @Override
     public void setup() {
         try {
+            register("clinic");
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -92,11 +97,18 @@ public class ClinicAgent extends EnhancedAgent {
                             for (Appointment appointment : delAppointments) {
                                 //System.out.println("sending Deletion mail ... ");
                                 System.out.println("Calling Email Agent from Delete Block of Clinic Agent !");
-                                ACLMessage aclUpdEmailMsg = new ACLMessage(ACLMessage.REQUEST);
-                                aclUpdEmailMsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
-                                aclUpdEmailMsg.setContentObject(appointment);
-                                aclUpdEmailMsg.setConversationId("Delete");
-                                send(aclUpdEmailMsg);
+
+                                emailA = searchForService("email");
+                                for (AID agentEmail : emailA) {
+
+                                    ACLMessage aclUpdEmailMsg = new ACLMessage(ACLMessage.REQUEST);
+                                    //aclUpdEmailMsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
+                                    aclUpdEmailMsg.setContentObject(appointment);
+                                    aclUpdEmailMsg.setConversationId("Delete");
+                                    aclUpdEmailMsg.addReceiver(agentEmail);
+                                    send(aclUpdEmailMsg);
+                                }
+
 
                             }
                             task = "updated";
@@ -186,7 +198,7 @@ public class ClinicAgent extends EnhancedAgent {
                             }
                             task = "Appointment";
                         case "Appointment":
-                            System.out.println("Calling Appointment Functionality from Clinic Agent !");
+                            System.out.println("Calling Appointment Functionality of Clinic Agent !");
                             ACLMessage appAclMsg = new ACLMessage(ACLMessage.REQUEST);
                             appAclMsg.addReceiver(new AID("AppointmentAgent", AID.ISLOCALNAME));
                             appAclMsg.setContentObject("Begin Processing Appointment");

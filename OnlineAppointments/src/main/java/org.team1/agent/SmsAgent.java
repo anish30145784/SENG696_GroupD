@@ -21,7 +21,7 @@ public class SmsAgent extends EnhancedAgent {
 
     @Override
     public void setup() {
-
+        register("sms");
         System.out.println("Connecting database inside SMS Agent...");
 
         try {

@@ -20,7 +20,7 @@ public class PdfAgent extends EnhancedAgent {
     public void setup() {
 
         System.out.println("Connecting database inside PDF Agent...");
-
+        register("pdf");
         try {
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {

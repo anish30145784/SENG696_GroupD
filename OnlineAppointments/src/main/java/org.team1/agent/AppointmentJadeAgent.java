@@ -32,7 +32,7 @@ public class AppointmentJadeAgent extends EnhancedAgent {
     public void setup() {
 
         System.out.println("Connecting database inside ProcessAppointmentJade Agent...");
-
+        register("appointment");
 
         try {
             connection = DriverManager.getConnection(url, username, password);
@@ -42,7 +42,7 @@ public class AppointmentJadeAgent extends EnhancedAgent {
         System.out.println("Database connected!");
 
 
-        addBehaviour(new TickerBehaviour(this, 10000) {
+        addBehaviour(new TickerBehaviour(this, 4000) {
             @Override
             protected void onTick() {
                 try {
@@ -178,7 +178,7 @@ public class AppointmentJadeAgent extends EnhancedAgent {
             if (!schAppTimes.contains(startDate))
                 break;
             else {
-                startDate = new Date(dateTime.getTime() + (1 * 60 * 60 * 1000));
+                startDate = new Date(startDate.getTime() + (1 * 60 * 60 * 1000));
                 System.out.println("New Start date : " + startDate);
             }
 

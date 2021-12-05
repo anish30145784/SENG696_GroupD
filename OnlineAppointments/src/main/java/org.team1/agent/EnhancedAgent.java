@@ -63,6 +63,8 @@ public class EnhancedAgent extends Agent {
         } catch (FIPAException ex) {
             ex.printStackTrace();
         }
+        System.out.println("Agents registered so far --> \n");
+        showAllAgents();
     }
 
     public void showAllAgents() {

@@ -23,9 +23,10 @@ public class FeedbackAgent extends EnhancedAgent {
     String password = "test1234";
     Connection connection = null;
 
+
     @Override
     public void setup() {
-
+        register("feedback");
         System.out.println("Connecting database inside Feedback Agent...");
 
         try {

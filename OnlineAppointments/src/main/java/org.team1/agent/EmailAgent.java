@@ -24,6 +24,7 @@ public class EmailAgent extends EnhancedAgent {
         System.out.println("Connecting database inside Email Agent...");
 
         try {
+            register("email");
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             e.printStackTrace();
