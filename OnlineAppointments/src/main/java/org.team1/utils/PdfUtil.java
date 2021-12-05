@@ -50,7 +50,7 @@ public class PdfUtil {
             Table table = new Table(col_width);
             table.setBackgroundColor(new DeviceRgb(63, 169, 219));
             table.setFontColor(Color.WHITE);
-            String imageFile = "D:\\OnlineAppointments_4\\OnlineAppointments\\src\\main\\resources\\static\\images\\efka-logotypo.png";
+            String imageFile = "src/main/resources/static/images/efka-logotypo.png";
             ImageData data = ImageDataFactory.create(imageFile);
             Image img = new Image(data);
             table.addCell(img.setAutoScale(true).setWidth(100f).setHeight(120f));
@@ -66,15 +66,15 @@ public class PdfUtil {
 
             Paragraph name = new Paragraph("\n" + "Pet Owner's Name : " + feedback.getClient().getFirstName() + " " + feedback.getClient().getLastName());
             document.add(name);
-            Paragraph breed = new Paragraph("Breed : " + feedback.getClient().getBreed());
+            Paragraph breed = new Paragraph("Pet's Breed : " + feedback.getClient().getBreed());
             document.add(breed);
-            Paragraph age = new Paragraph("Age(Years) : " + feedback.getClient().getAge());
+            Paragraph age = new Paragraph("Pet's Age(Years) : " + feedback.getClient().getAge());
             document.add(age);
-            Paragraph patientID = new Paragraph("PatientID : " + feedback.getClient().getId());
+            Paragraph patientID = new Paragraph("Pet's ID : " + feedback.getClient().getId());
             document.add(patientID);
-            Paragraph emailID = new Paragraph("EmailID : " + feedback.getClient().getEmail());
+            Paragraph emailID = new Paragraph("Pet Owner's EmailID : " + feedback.getClient().getEmail());
             document.add(emailID);
-            Paragraph contact = new Paragraph("Contact : " + feedback.getClient().getPhone());
+            Paragraph contact = new Paragraph("Pet Owner's Contact : " + feedback.getClient().getPhone());
             document.add(contact);
             Paragraph doctorName = new Paragraph("Doctor Name : " + feedback.getDoctor().getFirstName() + " " + feedback.getDoctor().getLastName());
             document.add(doctorName);
@@ -93,7 +93,7 @@ public class PdfUtil {
             document.add(response);
 
 
-            String imageStamp = "D:\\OnlineAppointments_4\\OnlineAppointments\\src\\main\\resources\\static\\images\\NewStamp.jpg";
+            String imageStamp = "src/main/resources/static/images/NewStamp.jpg";
             ImageData authorizedStamp = ImageDataFactory.create(imageStamp);
             Image imgSign = new Image(authorizedStamp);
             imgSign.setFixedPosition(440, 100);

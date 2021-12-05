@@ -81,14 +81,13 @@ public class DoctorController {
             MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<InputStreamResource> employeeReport(@PathVariable("email") String email)
             throws IOException {
-        System.out.println("email : " + email);
         Appointment appointment = appointmentRepository.findAppointmentsByDoctorEmailEqualsOrderByIdDesc(email).stream().findFirst().get();
         List<Feedback> employees = feedbackRepository.findByDoctor_EmailOrderByIdDesc(email);
 
         ByteArrayInputStream bis = PdfUtil.employeePDFReport(employees);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "inline; filename=employees.pdf");
+        headers.add("Content-Disposition", "inline; filename=feedback.pdf");
 
         return ResponseEntity.ok().headers(headers).contentType
                         (MediaType.APPLICATION_PDF)
@@ -134,7 +133,7 @@ public class DoctorController {
         doctorRepository.deleteById(id);
     }
 
-    @GetMapping("/doctor/user/{userName}") //done
+    @GetMapping("doctor/user/{userName}") //done
     public Doctor getDoctorByUsername(@PathVariable String userName) {
         return doctorRepository.findByUsername(userName);
     }

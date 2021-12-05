@@ -1,7 +1,7 @@
 package org.team1.agent;
 
-import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
+import jade.lang.acl.ACLMessage;
 import org.team1.models.Client;
 import org.team1.models.Doctor;
 import org.team1.models.Feedback;
@@ -27,18 +27,18 @@ public class PdfAgent extends EnhancedAgent {
             e.printStackTrace();
         }
         System.out.println("Database connected!");
-        register("pdf");
-
-        addBehaviour(new TickerBehaviour(this, 19000) {
+        addBehaviour(new TickerBehaviour(this, 10000) {
 
             @Override
             protected void onTick() {
                 try {
+                    ACLMessage pdfm = receive();
                     System.out.println("PDF agent=============started");
                     PreparedStatement statement = connection.prepareStatement("select * from feedback where mail_send is null");
                     statement.execute();
                     ResultSet resultSet = statement.getResultSet();
                     while (resultSet.next()) {
+                        System.out.println("Inside while loop of Feedback Agent");
                         Feedback feedback = new Feedback();
                         feedback.setId(resultSet.getLong("id"));
                         feedback.setFeedback(resultSet.getString("feedback"));
@@ -73,8 +73,8 @@ public class PdfAgent extends EnhancedAgent {
                         PreparedStatement stat2 = connection.prepareStatement("update feedback set mail_send = 'yes' WHERE  id = ?");
                         stat2.setLong(1, feedback.getId());
                         stat2.executeUpdate();
-                    }
 
+                    }
 
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();

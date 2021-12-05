@@ -1,7 +1,8 @@
 package org.team1.agent;
 
-import jade.core.Agent;
+import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
+import jade.lang.acl.ACLMessage;
 import org.springframework.util.StringUtils;
 import org.team1.models.Appointment;
 import org.team1.models.Client;
@@ -14,7 +15,7 @@ import java.sql.*;
 import java.util.Date;
 import java.util.*;
 
-public class CompletionAgent extends EnhancedAgent {
+public class FeedbackAgent extends EnhancedAgent {
 
 
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
@@ -25,7 +26,7 @@ public class CompletionAgent extends EnhancedAgent {
     @Override
     public void setup() {
 
-        System.out.println("Connecting database inside Completion Agent...");
+        System.out.println("Connecting database inside Feedback Agent...");
 
         try {
             connection = DriverManager.getConnection(url, username, password);
@@ -33,13 +34,12 @@ public class CompletionAgent extends EnhancedAgent {
             e.printStackTrace();
         }
         System.out.println("Database connected!");
-        register("completion");
         addBehaviour(new TickerBehaviour(this, 17000) {
 
             @Override
             protected void onTick() {
                 try {
-                    System.out.println("complition agent=============started");
+                    System.out.println("Completion agent=============started");
                     PreparedStatement statement = connection.prepareStatement("select * from appointment where status = 'Completed' and feedback IS NULL");
                     statement.execute();
                     ResultSet resultSet = statement.getResultSet();
@@ -103,18 +103,24 @@ public class CompletionAgent extends EnhancedAgent {
                             map.put(Constrants.PATIENT_NAME, appointment.getClient().getFirstName());
                             map.put(Constrants.PATIENT_EMAIL, appointment.getClient().getEmail());
 
-                            String body = "click on link to provide feedback : http://localhost:8080/feedback?dName=" + appointment.getDoctor().getFirstName() + "&dEmail=" + appointment.getDoctor().getEmail() + "&pName=" + appointment.getClient().getFirstName() + "&pEmail=" + appointment.getClient().getEmail();
+                            String body = "click on link to provide feedback : http://localhost:8080/feedback?dName=" + appointment.getDoctor().getFirstName() + "&dEmail=" + appointment.getDoctor().getEmail() + "&pName=" + (appointment.getClient().getFirstName()) + "&pEmail=" + appointment.getClient().getEmail();
                             // System.out.println("Doctor EMail : " + appointment.getDoctor().getEmail());
                             EmailUtils.main(appointment.getDoctor().getEmail(), subject, body);
 
                             PreparedStatement stat1 = connection.prepareStatement("update appointment set feedback = 'yes' WHERE  id = ?");
                             stat1.setLong(1, appointment.getId());
                             stat1.executeUpdate();
+
+                            System.out.println("Calling PDF Agent !");
+                            ACLMessage aclPdfmsg = new ACLMessage(ACLMessage.REQUEST);
+                            aclPdfmsg.addReceiver(new AID("PdfAgent", AID.ISLOCALNAME));
+                            aclPdfmsg.setContentObject(appointment);
+                            send(aclPdfmsg);
                         }
 
 
                     }
-                    System.out.println("complition agent=============Ended");
+                    System.out.println("Feedback agent=============Ended");
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } catch (Exception e) {

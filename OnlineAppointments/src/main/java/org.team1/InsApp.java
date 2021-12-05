@@ -12,9 +12,18 @@ import java.lang.reflect.InvocationTargetException;
 @SpringBootApplication
 public class InsApp {
 
+    // public static int counter = 0;
+
+    // public static void increaseCounter() {
+    //    counter++;
+    // }
+
+
     public static void main(String[] args) throws StaleProxyException {
+
         try {
             //System.out.println("Start Counter : " + counter++);
+            System.out.println("Inside Main method of insApp ... ");
             new JadeBootThread().run();
             SpringApplication.run(InsApp.class, args);
         } catch (ClassNotFoundException | InvocationTargetException | IllegalAccessException e) {

@@ -226,6 +226,7 @@ $(document).ready(function() {
                let t=$("#appointments").DataTable();
               t.row.add( [data.id,data.doctor.specialty.name, data.dateTime,"<i id='ClickableImageEdit' class='fa fa-pencil-square-o' aria-hidden='true' onclick='print()'></i>","<i id='ClickableImageCancel' class='fa fa-ban' aria-hidden='true' data-toggle='modal' data-target='#deleteModal' onclick='findRow()'></i>"] ).node().id="appointmentRow"+data.id;
               t.draw();
+
                 },
                  statusCode: {
                      401 : function() {

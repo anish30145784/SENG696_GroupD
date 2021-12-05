@@ -57,6 +57,12 @@ public class Appointment implements Serializable {
     @Column(name = "id_deleted")
     private Boolean isDeleted = false;
 
+    @Column(name = "id_updated")
+    private Boolean isUpdated = false;
+
+    @Column(name = "updated_mail")
+    private Boolean updatedMail = false;
+
     public Appointment() {
     }
 
@@ -188,6 +194,14 @@ public class Appointment implements Serializable {
                 '}';
     }
 
+    public Boolean getUpdated() {
+        return isUpdated;
+    }
+
+    public void setUpdated(Boolean updated) {
+        isUpdated = updated;
+    }
+
     public Boolean getDeleted() {
         return isDeleted;
     }
@@ -213,4 +227,13 @@ public class Appointment implements Serializable {
     public void setAge(@Nullable String age) {
         this.age = age;
     }
+
+    public Boolean getUpdatedMail() {
+        return updatedMail;
+    }
+
+    public void setUpdatedMail(Boolean updatedMail) {
+        this.updatedMail = updatedMail;
+    }
+
 }

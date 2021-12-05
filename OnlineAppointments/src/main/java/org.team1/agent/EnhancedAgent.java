@@ -1,17 +1,26 @@
 package org.team1.agent;
-import jade.domain.FIPAException;
-import jade.domain.DFService;
-import jade.domain.FIPAAgentManagement.SearchConstraints;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
-import java.util.Set;
-import java.util.HashSet;
-import jade.core.Agent;
+
 import jade.core.AID;
+import jade.core.Agent;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.SearchConstraints;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class EnhancedAgent extends Agent {
-    // Search for a service in the yellow pages
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
     protected Set<AID> searchForService(String serviceName) {
+        System.out.println("Inside Search !");
+        showAllAgents();
         Set<AID> foundAgents = new HashSet<>();
         DFAgentDescription dfd = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
@@ -23,32 +32,51 @@ public class EnhancedAgent extends Agent {
 
         try {
             DFAgentDescription[] results = DFService.search(this, dfd, sc);
-            for(DFAgentDescription result : results) {
+            for (DFAgentDescription result : results) {
                 foundAgents.add(result.getName());
             }
             return foundAgents;
+        } catch (FIPAException ex) {
+            ex.printStackTrace();
+            return null;
         }
-        catch (FIPAException ex) { ex.printStackTrace(); return null; }
     }
 
     protected void takeDown() {
-        // Deregister service from the yellow pages
-        try { DFService.deregister(this); }
-        catch (Exception ex) {}
+        try {
+            DFService.deregister(this);
+        } catch (Exception ex) {
+        }
     }
 
     protected void register(String serviceName) {
-        // Register a service in the yellow pages
+        System.out.println("Inside Registration : " + serviceName);
         DFAgentDescription dfd = new DFAgentDescription();
-        dfd.setName(getAID());
+        AID aid = getAID();
+        dfd.setName(aid);
         ServiceDescription sd = new ServiceDescription();
         sd.setName(getLocalName());
         sd.setType(serviceName.toLowerCase());
         dfd.addServices(sd);
         try {
             DFService.register(this, dfd);
+        } catch (FIPAException ex) {
+            ex.printStackTrace();
         }
-        catch (FIPAException ex) { ex.printStackTrace();
+    }
+
+    public void showAllAgents() {
+        DFAgentDescription dfd1 = new DFAgentDescription();
+        DFAgentDescription[] result;
+        try {
+            result = DFService.search(this, dfd1);
+            System.out.println("Search returns: " + result.length + " elements");
+            for (int i = 0; i < result.length; i++) {
+                System.out.println(" " + result[i].getName() + " --> " + result[i].getName().getLocalName());
+            }
+
+        } catch (FIPAException e) {
+            e.printStackTrace();
         }
     }
 

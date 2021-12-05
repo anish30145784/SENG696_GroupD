@@ -39,6 +39,9 @@ public class AppointmentService {
         newAppointment.setCriticality(appointment.getCriticality());
         newAppointment.setStatus("NOT_SCHEDULED");
         newAppointment.setDeleted(Boolean.FALSE);
+        newAppointment.setUpdated(false);
+        newAppointment.setUpdatedMail(false);
+
 
         appointmentRepository.save(newAppointment);
         return newAppointment;

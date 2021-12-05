@@ -1,6 +1,5 @@
 package org.team1.agent;
 
-import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
@@ -30,15 +29,26 @@ public class EmailAgent extends EnhancedAgent {
             e.printStackTrace();
         }
         System.out.println("Database connected!");
-        register("email");
         addBehaviour(new TickerBehaviour(this, 12000) {
 
             @Override
             protected void onTick() {
                 try {
                     String subject = "Appointment Booked";
-                    ACLMessage msg = receive();
-                    if (msg != null) {
+                    ACLMessage msg = blockingReceive();
+                    if (msg != null && msg.getConversationId() == "Delete") {
+                        System.out.println("Inside Delete If Block of Email Agent !");
+                        Appointment appointment = (Appointment) msg.getContentObject();
+
+                        EmailUtils.main(appointment.getClient().getEmail(), "Appointment Deleted", "Dear " + appointment.getClient().getFirstName() +
+                                ",<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +
+                                "<br> At " + appointment.getDateTime() + " has been cancelled ! ");
+
+                        PreparedStatement dStat = connection.prepareStatement("update appointment set status='Deleted', del_mail = 1 WHERE  id = ?");
+                        dStat.setLong(1, appointment.getId());
+                        dStat.executeUpdate();
+
+                    } else if (msg != null) {
                         Appointment appointment = (Appointment) msg.getContentObject();
                         if (appointment != null) {
                             PreparedStatement statement1 = connection.prepareStatement("select * from meeting_date");
@@ -50,6 +60,7 @@ public class EmailAgent extends EnhancedAgent {
                                 meetingData.setMeetingId(resultSet1.getString("meeting_id"));
                             }
 
+                            System.out.println("Doctor Last Name : " + appointment.getDoctor().getLastName());
                             EmailUtils.main(appointment.getClient().getEmail(), subject, "Dear " + appointment.getClient().getFirstName()
                                     + ",<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +
                                     "<br> At " + appointment.getDateTime() + " <br> url -" + meetingData.getUrl() +
@@ -128,6 +139,8 @@ public class EmailAgent extends EnhancedAgent {
                                     meetingData.setPassword(resultSet1.getString("password"));
                                     meetingData.setMeetingId(resultSet1.getString("meeting_id"));
                                 }
+
+                                System.out.println("Doctor Last Name : " + appointment.getDoctor().getLastName());
                                 EmailUtils.main(appointment.getClient().getEmail(), subject, "Dear " + appointment.getClient().getFirstName()
                                         + ",<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +
                                         "<br> At " + appointment.getDateTime() + " <br> url -" + meetingData.getUrl() +

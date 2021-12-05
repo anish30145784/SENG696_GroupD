@@ -129,14 +129,17 @@
                                 <div class="form-group required">
                                     <div class="validate-input" data-validate="required">
                                         <label for="breed">Breed</label>
-                                        <input class="form-control" id="breed" maxlength="2000" minlength="2"
-                                               name="breed"
-                                               required rows="3" type="text"></input>
+                                        <input class="form-control" id="breed" maxlength="2000" minlength="2" name="breed"
+                                               rows="3" type="text"></input>
+                                        <span class="symbol">
+                                    </span>
                                     </div>
                                     <div class="validate-input" data-validate="required">
                                         <label for="age">Age</label>
-                                        <input class="form-control" id="age" maxlength="2" minlength="1" name="age"
-                                               required type="number"></input>
+                                        <input class="form-control" id="age" maxlength="20" minlength="1" name="age"
+                                               rows="3" type="number"></input>
+                                        <span class="symbol">
+                                    </span>
                                     </div>
                                     <div class="validate-input" data-validate="required">
                                         <label class="control-label" for="specialtyA">Specialty</label>
@@ -309,6 +312,7 @@ $('#SearchModal').on('hidden.bs.modal', function(e){
            $(this).parent().removeClass('alert-validate');
         });
     });
+
 
 
 

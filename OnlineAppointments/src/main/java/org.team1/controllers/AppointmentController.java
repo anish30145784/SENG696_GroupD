@@ -118,6 +118,8 @@ public class AppointmentController {
                     appointment.setDateTime(updateAppointment.getDateTime());
                     appointment.setDescription(updateAppointment.getDescription());
                     appointment.setNotes(updateAppointment.getNotes());
+                    appointment.setUpdated(true);
+                    appointment.setUpdatedMail(true);
                     MeetingData meetingData = meetingRepository.findAll().get(0);
                     EmailUtils.main(appointment.getDoctor().getEmail(), "Appointment Updated", "Dear User,"
                             + "<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() +

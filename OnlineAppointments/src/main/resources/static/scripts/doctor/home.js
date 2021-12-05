@@ -11,10 +11,19 @@ function populateDataTable(appointments) {
             $("#appointments").append("<tbody>");
             jQuery.each(appointments, function(i,appointment) {
                 
-                $("#appointments").append("<tr id='appointmentRow" + appointment.id + "'><td>" + appointment.id + "</td><td>" + appointment.client.firstName + "</td><td>" +appointment.dateTime + "</td><td>" + appointment.description +  "</td><td>" + appointment.status +"</td><td><span id='ClickableImageEdit" + appointment.id + "' data-toggle='modal' data-target='#viewAppointmentModal' onclick='findRow()' style='color: #0067B3'>View details</span></td><td><button id='complete" + appointment.id + "' onclick='show(" + appointment.id + ")' class='custom-btn' >Completed</button></td></tr>");
+                $("#appointments").append("<tr id='appointmentRow" + appointment.id + "'><td>" + appointment.id + "</td><td>" + appointment.client.firstName + "</td><td>" +appointment.dateTime + "</td><td>" + appointment.description +  "</td><td>" + appointment.status +"</td><td><span id='ClickableImageEdit" + appointment.id + "' data-toggle='modal' data-target='#viewAppointmentModal' onclick='findRow()' style='color: #0067B3'>View details</span></td><td><button id='complete" + appointment.id + "' onclick='show(" + appointment.id + ")' class='custom-btn' >Complete</button></td></tr>");
                 if(appointment.status === 'Completed'){
                     document.getElementById("complete"+appointment.id).disabled = 'disabled'
+                    var property = document.getElementById("complete"+appointment.id);
+                    property.innerHTML = 'Completed';
+                    property.style.backgroundColor = "#d9ab45"
                 }
+                // if(appointment.status === 'Expired'){
+                //     document.getElementById("complete"+appointment.id).disabled = 'disabled'
+                //     var property = document.getElementById("complete"+appointment.id);
+                //     property.innerHTML = 'Expired';
+                //     property.style.backgroundColor = "#d31919"
+                // }
 
              });
            $("#appointments").append("</tbody>");
@@ -33,6 +42,7 @@ function show(id){
         url: ROOT_PATH + "/appointment/complete/"+id
     }).then(function(appointment) {
         document.getElementById("complete"+id).disabled = 'disabled'
+        document.getElementById("complete"+id).innerHTML = 'Completed';
         window.location.reload();
         
     });
@@ -66,8 +76,8 @@ $(document).ready(function() {
    let json = JSON.parse(sessionStorage.getItem(SESSION_STORAGE_LOGIN_TOKEN_NAME));
    let userw=json.userName;
    document.getElementById("welcome").innerHTML = "You are connected as " + userw;
-   document.getElementById("name").innerHTML = userw;
-   document.getElementById("email").innerHTML = "mail2anish696@gmail.com"
+   // document.getElementById("name").innerHTML = userw;
+   // document.getElementById("email").innerHTML = "ani8222@gmail.com"
     $.ajax({
         url: ROOT_PATH + "/doctor/user/"+userw
     }).then(function(doctor) {

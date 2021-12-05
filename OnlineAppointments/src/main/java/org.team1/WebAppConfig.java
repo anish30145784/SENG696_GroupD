@@ -51,6 +51,7 @@ public class WebAppConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
+		.antMatchers("/doctor/user/**").permitAll()
                 .and()
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler)
@@ -62,7 +63,6 @@ public class WebAppConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/appointment/**").authenticated()
                 .antMatchers("/doc//**").authenticated()
                 .antMatchers("/feedback").permitAll()
-                .antMatchers("/doctor/user/**").permitAll()
                 .and()
                 .formLogin()
                 .successHandler(mySuccessHandler)
