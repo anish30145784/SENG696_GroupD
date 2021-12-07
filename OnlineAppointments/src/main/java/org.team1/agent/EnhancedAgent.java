@@ -20,7 +20,6 @@ public class EnhancedAgent extends Agent {
 
     protected Set<AID> searchForService(String serviceName) {
         System.out.println("Inside Search !");
-        showAllAgents();
         Set<AID> foundAgents = new HashSet<>();
         DFAgentDescription dfd = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
@@ -72,9 +71,13 @@ public class EnhancedAgent extends Agent {
         DFAgentDescription[] result;
         try {
             result = DFService.search(this, dfd1);
-            System.out.println("Search returns: " + result.length + " elements");
-            for (int i = 0; i < result.length; i++) {
-                System.out.println(" " + result[i].getName() + " --> " + result[i].getName().getLocalName());
+            if (result.length == 6) {
+                System.out.println("Search returns: " + result.length + " elements");
+                for (int i = 0; i < result.length; i++) {
+                    System.out.println(" " + result[i].getName() + " --> " + result[i].getName().getLocalName());
+                }
+
+
             }
 
         } catch (FIPAException e) {

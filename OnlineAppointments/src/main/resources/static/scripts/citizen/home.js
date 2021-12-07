@@ -137,10 +137,10 @@ $(document).ready(function() {
         event.preventDefault();
         let url = new URL(document.URL);
         var c = url.searchParams.get("appointmentid");
-        let dayU=$("input[name=dateU]").val();
-        let timeU=$("input[name=timeU]").val();
+        let dayU=$(":input[name='dateU']").val();
+        let timeU=$(":input[name='timeU']").val();
         let newdate=dayU.concat(" ",timeU);
-        let newdescription=$(":input[name=briefdescriptionU]").val();
+        let newdescription=$(":input[name='briefdescriptionU']").val();
         let newnotes=$(":input[name=notesU]").val();
         let updatedata = {
               "dateTime": newdate,
@@ -226,9 +226,9 @@ $(document).ready(function() {
                let t=$("#appointments").DataTable();
               t.row.add( [data.id,data.doctor.specialty.name, data.dateTime,"<i id='ClickableImageEdit' class='fa fa-pencil-square-o' aria-hidden='true' onclick='print()'></i>","<i id='ClickableImageCancel' class='fa fa-ban' aria-hidden='true' data-toggle='modal' data-target='#deleteModal' onclick='findRow()'></i>"] ).node().id="appointmentRow"+data.id;
               t.draw();
-                setTimeout(function(){// wait for 5 secs(2)
-                    window.location.reload(); // then reload the page.(3)
-                    }, 5000);
+                setTimeout(function(){// wait for 8 secs
+                    window.location.reload(); // then reload the page
+                    }, 8000);
                 },
                  statusCode: {
                      401 : function() {

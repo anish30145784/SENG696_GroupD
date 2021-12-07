@@ -13,25 +13,25 @@ import org.team1.models.Criticality;
 import org.team1.models.Doctor;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
-public class AppointmentJadeAgent extends EnhancedAgent {
+public class AppointmentAgent extends EnhancedAgent {
 
+    public Set<AID> emailA = new HashSet<>();
+    public Set<AID> smsA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
     String password = "test1234";
     Connection connection = null;
-
     @Autowired
     private JdbcTemplate appointmentRepository;
 
     @Override
     public void setup() {
 
-        System.out.println("Connecting database inside ProcessAppointmentJade Agent...");
+        System.out.println("Connecting database inside Appointment Agent...");
         register("appointment");
 
         try {
@@ -127,7 +127,7 @@ public class AppointmentJadeAgent extends EnhancedAgent {
 
 
                         for (Appointment appointment : appointments) {
-                            System.out.println("Inside Update loop !");
+                            System.out.println("Inside Appointment Re-scheduling loop for Appointment Agent!");
 
                             PreparedStatement stat2 = connection.prepareStatement("Update appointment set datetime = ? where id = ?");
                             stat2.setTimestamp(1, new Timestamp(appointment.getDateTime().getTime()));
@@ -142,16 +142,30 @@ public class AppointmentJadeAgent extends EnhancedAgent {
                             }
 
                             System.out.println("Calling Email Agent !");
-                            ACLMessage aclEmailMsg = new ACLMessage(ACLMessage.REQUEST);
-                            aclEmailMsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
-                            aclEmailMsg.setContentObject(appointment);
-                            send(aclEmailMsg);
+
+                            emailA = searchForService("email");
+                            for (AID agentEmail : emailA) {
+                                ACLMessage aclUpdEmailMsg = new ACLMessage(ACLMessage.REQUEST);
+                                //aclUpdEmailMsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
+                                aclUpdEmailMsg.setContentObject(appointment);
+                                aclUpdEmailMsg.setConversationId("Create");
+                                aclUpdEmailMsg.addReceiver(agentEmail);
+                                send(aclUpdEmailMsg);
+                            }
+                            //ACLMessage aclEmailMsg = new ACLMessage(ACLMessage.REQUEST);
+                            //aclEmailMsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
+                            //aclEmailMsg.setContentObject(appointment);
+                            //send(aclEmailMsg);
 
                             System.out.println("Calling SMS Agent !");
-                            ACLMessage aclSMSmsg = new ACLMessage(ACLMessage.REQUEST);
-                            aclSMSmsg.addReceiver(new AID("SmsAgent", AID.ISLOCALNAME));
-                            aclSMSmsg.setContentObject(appointment);
-                            send(aclSMSmsg);
+                            smsA = searchForService("sms");
+                            for (AID agentEmail : smsA) {
+                                ACLMessage aclSMSmsg = new ACLMessage(ACLMessage.REQUEST);
+                                aclSMSmsg.addReceiver(new AID("SmsAgent", AID.ISLOCALNAME));
+                                aclSMSmsg.setContentObject(appointment);
+                                send(aclSMSmsg);
+                            }
+
 
                         }
                         System.out.println("Appointment agent=============Ended");
@@ -170,22 +184,21 @@ public class AppointmentJadeAgent extends EnhancedAgent {
         String cri = criticality.toString();
         System.out.println("StartDate sent to Function : " + dateTime + " | Timestamp : " + dateTime.getTime());
         System.out.println("Criticality sent to Function : " + cri);
-        int hoursTillnxtDay9am = 40 - (int) Math.floor((dateTime.getTime() / (1000 * 60 * 60)) % 24);
+        int hoursTillnxtDay9am = (int) (Math.floor(dateTime.getTime() / (1000 * 60 * 60)) % 24) <= 1 ? 14 + ((int) Math.floor((dateTime.getTime() / (1000 * 60 * 60)) % 24)) : 38 - ((int) Math.floor((dateTime.getTime() / (1000 * 60 * 60)) % 24));
         System.out.println("hoursTillnxtDay9am : " + hoursTillnxtDay9am);
         Date startDate = cri.equals("URGENT") ? new Date(dateTime.getTime() + (1 * 60 * 60 * 1000)) : new Date(dateTime.getTime() + (hoursTillnxtDay9am * 3600000));
         System.out.println("New Start Date based on Criticality : " + startDate);
         while (true) {
-            if (!schAppTimes.contains(startDate))
-                break;
-            else {
-                startDate = new Date(startDate.getTime() + (1 * 60 * 60 * 1000));
-                System.out.println("New Start date : " + startDate);
+            if ((Math.floor((startDate.getTime() / (1000 * 60 * 60)) % 24)) == 2) {
+                startDate = new Date(startDate.getTime() + (14 * 60 * 60 * 1000));
+                System.out.println("Next day start time : " + startDate);
             }
 
-
-            if ((Math.floor((startDate.getTime() / (1000 * 60 * 60)) % 24)) == 19) {
-                startDate = new Date(startDate.getTime() + (14 * 60 * 60 * 1000));
-                System.out.println("Next day starttime : " + startDate);
+            if (schAppTimes.contains(startDate)) {
+                startDate = new Date(startDate.getTime() + (1 * 60 * 60 * 1000));
+                System.out.println("New Start date : " + startDate);
+            } else {
+                break;
             }
 
 

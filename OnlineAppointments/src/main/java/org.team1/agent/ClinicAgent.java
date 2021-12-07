@@ -5,9 +5,10 @@ import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.util.StringUtils;
-import org.team1.models.*;
-import org.team1.utils.EmailUtils;
+import org.team1.models.Appointment;
+import org.team1.models.Client;
+import org.team1.models.Criticality;
+import org.team1.models.Doctor;
 
 import java.io.IOException;
 import java.sql.*;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 public class ClinicAgent extends EnhancedAgent {
     public Set<AID> emailA = new HashSet<>();
+    public Set<AID> appA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
     String password = "test1234";
@@ -44,9 +46,10 @@ public class ClinicAgent extends EnhancedAgent {
             protected void onTick() {
                 try {
                     task = "Deleted";
+                    System.out.println("Switch-case started ");
                     switch (task) {
                         case "Deleted":
-                            System.out.println("Inside Delete Functionality of Clinic Agenta !");
+                            System.out.println("Inside Delete Case of Clinic Agent !");
                             PreparedStatement delStmt = connection.prepareStatement("select * from appointment where deleted=1 and del_mail=0");
                             delStmt.execute();
                             ResultSet delResultSet = delStmt.getResultSet();
@@ -128,7 +131,7 @@ public class ClinicAgent extends EnhancedAgent {
 
 
                         case "Updated":
-                            System.out.println("Inside Update Functionality of Clinic Agent !");
+                            System.out.println("Inside Update Case of Clinic Agent !");
                             PreparedStatement statement = connection.prepareStatement("select * from appointment where updated =1 and deleted=0 and updated_mail = 0");
                             statement.execute();
                             ResultSet resultSet = statement.getResultSet();
@@ -141,7 +144,7 @@ public class ClinicAgent extends EnhancedAgent {
                                 appointment.setDescription(resultSet.getString("description"));
                                 appointment.setNotes(resultSet.getString("notes"));
                                 appointment.setEmail(resultSet.getString("email"));
-                                appointment.setDateTime(resultSet.getDate("datetime"));
+                                appointment.setDateTime(resultSet.getTimestamp("datetime"));
                                 PreparedStatement stat = connection.prepareStatement("SELECT * from client WHERE  id = ?");
                                 stat.setLong(1, Long.parseLong(resultSet.getString("client_id")));
                                 ResultSet rs = stat.executeQuery();
@@ -172,48 +175,45 @@ public class ClinicAgent extends EnhancedAgent {
                                 System.out.println(appointment);
                             }
                             for (Appointment appointment : appointments) {
-                                if (StringUtils.isEmpty(appointment.getEmail())) {
-                                    System.out.println("sending mail");
+                                System.out.println("Calling Email Agent from Update Block of Clinic Agent !");
+                                emailA = searchForService("email");
+                                for (AID agentEmail : emailA) {
 
-                                    PreparedStatement statement1 = connection.prepareStatement("select * from meeting_date");
-                                    ResultSet resultSet1 = statement1.executeQuery();
-                                    MeetingData meetingData = new MeetingData();
-                                    while (resultSet1.next()) {
-                                        meetingData.setUrl(resultSet1.getString("url"));
-                                        meetingData.setPassword(resultSet1.getString("password"));
-                                        meetingData.setMeetingId(resultSet1.getString("meeting_id"));
-                                    }
-
-                                    System.out.println("Calling Email Agent from Update Block of Clinic Agent !");
-
-                                    EmailUtils.main(appointment.getDoctor().getEmail(), "Appointment Updated", "Dear " + appointment.getClient().getFirstName() +
-                                            ",<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +
-                                            "<br> At " + appointment.getDateTime() + " <br> url -" + meetingData.getUrl() +
-                                            "<br> meeting id - " + meetingData.getMeetingId() +
-                                            "<br> password - " + meetingData.getPassword());
-                                    PreparedStatement stat1 = connection.prepareStatement("update appointment set updated_mail = 1 WHERE  id = ?");
-                                    stat1.setLong(1, appointment.getId());
-                                    stat1.executeUpdate();
+                                    ACLMessage aclUpdEmailMsg = new ACLMessage(ACLMessage.REQUEST);
+                                    aclUpdEmailMsg.setContentObject(appointment);
+                                    aclUpdEmailMsg.setConversationId("Update");
+                                    aclUpdEmailMsg.addReceiver(agentEmail);
+                                    send(aclUpdEmailMsg);
                                 }
+
+
                             }
+
+
                             task = "Appointment";
                         case "Appointment":
-                            System.out.println("Calling Appointment Functionality of Clinic Agent !");
-                            ACLMessage appAclMsg = new ACLMessage(ACLMessage.REQUEST);
-                            appAclMsg.addReceiver(new AID("AppointmentAgent", AID.ISLOCALNAME));
-                            appAclMsg.setContentObject("Begin Processing Appointment");
-                            send(appAclMsg);
-                            //new AppointmentJadeAgent().setup();
-                            //break;
+                            System.out.println("Calling Appointment Case of Clinic Agent !");
 
+                            appA = searchForService("appointment");
+                            for (AID agentAppmt : appA) {
+                                ACLMessage appAclMsg = new ACLMessage(ACLMessage.REQUEST);
+                                appAclMsg.addReceiver(agentAppmt);
+                                appAclMsg.setContentObject("Begin Processing Appointment");
+                                send(appAclMsg);
+                            }
+
+                            //new AppointmentJadeAgent().setup();
+
+
+                            System.out.println("Switch-case ended ");
+                            break;
                     }
-                    task = "Deleted";
-                } catch (SQLException | IOException e) {
-                    e.printStackTrace();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
                 }
             }
         });
     }
-
-    ;
 }

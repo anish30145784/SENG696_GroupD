@@ -11,10 +11,10 @@ import org.team1.repositories.AppointmentRepository;
 import org.team1.repositories.MeetingRepository;
 import org.team1.services.AppointmentService;
 import org.team1.services.ClientService;
-import org.team1.utils.EmailUtils;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,6 +41,7 @@ public class AppointmentController {
 
     @GetMapping("/appointment/all")
     public List<Appointment> getAppointments() {
+        System.out.println("Inside GetAppointments call of Controller!");
         return appointmentService.getAllAppointments();
     }
 
@@ -113,19 +114,42 @@ public class AppointmentController {
 
     @PutMapping("/appointment/{id}")
     public Appointment updateAppointment(@PathVariable Long id, @RequestBody Appointment updateAppointment) {
+        System.out.println("Inside Update Mapping of Appointment Controller ");
+        System.out.println("ID of updateAppointment :" + id);
+        System.out.println("Time of updateAppointment :" + updateAppointment.getDateTime());
+        System.out.println("Timestamp of updateAppointment :" + new Timestamp(updateAppointment.getDateTime().getTime()));
+        List<Appointment> a = getAppointments();
+        System.out.println("Size of all appointment array : " + a.size());
+        a.removeIf(Appointment -> Appointment.getId() == id);
+        System.out.println("Size of updated appointment array : " + a.size());
+        Date newDt = updateAppointment.getDateTime();
+        System.out.println("Update Appointment Time : " + updateAppointment.getDateTime().getTime());
+        boolean state = false;
+        for (int i = 0; i < a.size() && state == false; i++) {
+            System.out.println("DateTime of Other Appointment : #" + (i + 1) + " | ID : " + a.get(i).getId() + " | Date Time : " + a.get(i).getDateTime().toString());
+            if (new Timestamp(a.get(i).getDateTime().getTime()).toString().equals(new Timestamp(updateAppointment.getDateTime().getTime()).toString())) {
+                System.out.println("Match Found !");
+                newDt = generateAvailableDate(a, updateAppointment, id);
+                state = true;
+            } else
+                continue;
+        }
+        System.out.println("New Suggested Date : " + newDt);
+        Date finalNewDt = newDt;
         return appointmentRepository.findById(id)
                 .map(appointment -> {
-                    appointment.setDateTime(updateAppointment.getDateTime());
+                    appointment.setDateTime(finalNewDt);
                     appointment.setDescription(updateAppointment.getDescription());
                     appointment.setNotes(updateAppointment.getNotes());
                     appointment.setUpdated(true);
-                    appointment.setUpdatedMail(true);
+                    appointment.setUpdatedMail(false);
                     MeetingData meetingData = meetingRepository.findAll().get(0);
-                    EmailUtils.main(appointment.getDoctor().getEmail(), "Appointment Updated", "Dear User,"
-                            + "<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() +
-                            "<br> At " + appointment.getDateTime() + " <br> url -" + meetingData.getUrl() +
-                            "<br> meeting id - " + meetingData.getMeetingId() +
-                            "<br> password - " + meetingData.getPassword());
+                    System.out.println("Inside Appointment Controller : updateAppointment ! ");
+                    // EmailUtils.main(appointment.getDoctor().getEmail(), "Appointment Updated", "Dear User,"
+                    //   + "<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() +
+                    //    "<br> At " + appointment.getDateTime() + " <br> url -" + meetingData.getUrl() +
+                    //     "<br> meeting id - " + meetingData.getMeetingId() +
+                    //   "<br> password - " + meetingData.getPassword());
                     return appointmentRepository.save(appointment);
                 })
                 .orElseThrow(() -> new AppointmentNotFoundException(id));
@@ -137,5 +161,36 @@ public class AppointmentController {
         Appointment appointment = getAppointment(id);
         appointment.setDeleted(true);
         appointmentRepository.save(appointment);
+    }
+
+
+    public Date generateAvailableDate(List<Appointment> a, Appointment updateApp, long id) {
+        System.out.println("Inside generateAvailableDate function !");
+        String cri = getAppointment(id).getCriticality().toString();
+        System.out.println("Update App Criticality : " + cri.toString());
+        //int hoursTillnxtDay9am = (int) (Math.floor(updateApp.getDateTime().getTime() / (1000 * 60 * 60)) % 24) <= 0 ? 14 + ((int) Math.floor((updateApp.getDateTime().getTime() / (1000 * 60 * 60)) % 24)) : 33 - ((int) Math.floor((updateApp.getDateTime().getTime() / (1000 * 60 * 60)) % 24));
+        int hoursTillnxtDay9am = 33 - ((int) Math.floor((updateApp.getDateTime().getTime() / (1000 * 60 * 60)) % 24));
+        System.out.println("hoursTillnxtDay9am : " + hoursTillnxtDay9am);
+        Date startDate = cri.equals("URGENT") ? new Date(updateApp.getDateTime().getTime() + (1 * 60 * 60 * 1000)) : new Date(updateApp.getDateTime().getTime() + (hoursTillnxtDay9am * 3600000));
+        System.out.println("New Start Date based on Criticality : " + startDate);
+        while (true) {
+            System.out.println("Start Date timestamp : " + startDate.getTime());
+            if ((Math.floor((startDate.getTime() / (1000 * 60 * 60)) % 24)) == 19) {
+                startDate = new Date(startDate.getTime() + (14 * 60 * 60 * 1000));
+                System.out.println("Next day start time : " + startDate);
+            }
+
+            if (a.contains(startDate)) {
+                startDate = new Date(startDate.getTime() + (1 * 60 * 60 * 1000));
+                System.out.println("New Start date : " + startDate);
+            } else {
+                break;
+            }
+
+
+        }
+
+
+        return startDate;
     }
 }

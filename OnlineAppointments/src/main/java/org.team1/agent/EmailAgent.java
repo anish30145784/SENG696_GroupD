@@ -20,7 +20,7 @@ public class EmailAgent extends EnhancedAgent {
 
     @Override
     public void setup() {
-
+        System.out.println("EMAIL agent=============started");
         System.out.println("Connecting database inside Email Agent...");
 
         try {
@@ -36,20 +36,25 @@ public class EmailAgent extends EnhancedAgent {
             protected void onTick() {
                 try {
                     String subject = "Appointment Booked";
+
+
                     ACLMessage msg = blockingReceive();
+
+
                     if (msg != null && msg.getConversationId() == "Delete") {
                         System.out.println("Inside Delete If Block of Email Agent !");
                         Appointment appointment = (Appointment) msg.getContentObject();
 
                         EmailUtils.main(appointment.getClient().getEmail(), "Appointment Deleted", "Dear " + appointment.getClient().getFirstName() +
-                                ",<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +
+                                ",<br> your appointment scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +
                                 "<br> At " + appointment.getDateTime() + " has been cancelled ! ");
 
                         PreparedStatement dStat = connection.prepareStatement("update appointment set status='Deleted', del_mail = 1 WHERE  id = ?");
                         dStat.setLong(1, appointment.getId());
                         dStat.executeUpdate();
 
-                    } else if (msg != null) {
+                    } else if (msg != null && msg.getConversationId() == "Update") {
+                        System.out.println("Inside Update If Block of Email Agent !");
                         Appointment appointment = (Appointment) msg.getContentObject();
                         if (appointment != null) {
                             PreparedStatement statement1 = connection.prepareStatement("select * from meeting_date");
@@ -61,28 +66,27 @@ public class EmailAgent extends EnhancedAgent {
                                 meetingData.setMeetingId(resultSet1.getString("meeting_id"));
                             }
 
-                            System.out.println("Doctor Last Name : " + appointment.getDoctor().getLastName());
-                            EmailUtils.main(appointment.getClient().getEmail(), subject, "Dear " + appointment.getClient().getFirstName()
-                                    + ",<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +
+                            EmailUtils.main(appointment.getClient().getEmail(), "Appointment Updated", "Dear " +
+                                    appointment.getClient().getFirstName() +
+                                    ",<br> your appointment is re-scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +
                                     "<br> At " + appointment.getDateTime() + " <br> url -" + meetingData.getUrl() +
                                     "<br> meeting id - " + meetingData.getMeetingId() +
                                     "<br> password - " + meetingData.getPassword());
-                            PreparedStatement stat1 = connection.prepareStatement("update appointment set email = 'yes' WHERE  id = ?");
+                            PreparedStatement stat1 = connection.prepareStatement("update appointment set updated_mail = 1 WHERE  id = ?");
                             stat1.setLong(1, appointment.getId());
                             stat1.executeUpdate();
 
 
-                            EmailUtils.main(appointment.getDoctor().getEmail(), subject, "Dear " + appointment.getDoctor().getFirstName()
-                                    + ",<br> your appointment is scheduled with user : " + appointment.getClient().getFirstName() + " " + appointment.getClient().getLastName() +
+                            EmailUtils.main(appointment.getDoctor().getEmail(), "Appointment Updated", "Dear " + appointment.getDoctor().getFirstName()
+                                    + ",<br> your appointment is re-scheduled with user : " + appointment.getClient().getFirstName() + " " + appointment.getClient().getLastName() +
                                     "<br> At " + appointment.getDateTime() + " <br> url -" + meetingData.getUrl() +
                                     "<br> meeting id - " + meetingData.getMeetingId() +
                                     "<br> password - " + meetingData.getPassword());
-                            PreparedStatement stat2 = connection.prepareStatement("update appointment set email = 'yes' WHERE  id = ?");
-                            stat2.setLong(1, appointment.getId());
-                            stat2.executeUpdate();
+
                         }
                     } else {
-                        System.out.println("EMAIL agent=============started");
+
+                        System.out.println("Inside Else Block of Email Agent !");
                         PreparedStatement statement = connection.prepareStatement("select * from appointment where status = 'Scheduled'");
                         statement.execute();
                         ResultSet resultSet = statement.getResultSet();

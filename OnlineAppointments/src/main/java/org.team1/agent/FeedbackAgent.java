@@ -17,7 +17,7 @@ import java.util.*;
 
 public class FeedbackAgent extends EnhancedAgent {
 
-
+    public Set<AID> pdfA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
     String password = "test1234";
@@ -40,7 +40,7 @@ public class FeedbackAgent extends EnhancedAgent {
             @Override
             protected void onTick() {
                 try {
-                    System.out.println("Completion agent=============started");
+                    System.out.println("Feedback agent=============started");
                     PreparedStatement statement = connection.prepareStatement("select * from appointment where status = 'Completed' and feedback IS NULL");
                     statement.execute();
                     ResultSet resultSet = statement.getResultSet();
@@ -59,7 +59,6 @@ public class FeedbackAgent extends EnhancedAgent {
                         PreparedStatement stat = connection.prepareStatement("SELECT * from client WHERE  id = ?");
                         stat.setLong(1, Long.parseLong(resultSet.getString("client_id")));
                         ResultSet rs = stat.executeQuery();
-                        String patientName;
                         while (rs.next()) {
                             Client client = new Client();
                             client.setEmail(rs.getString("email"));
@@ -113,10 +112,16 @@ public class FeedbackAgent extends EnhancedAgent {
                             stat1.executeUpdate();
 
                             System.out.println("Calling PDF Agent !");
-                            ACLMessage aclPdfmsg = new ACLMessage(ACLMessage.REQUEST);
-                            aclPdfmsg.addReceiver(new AID("PdfAgent", AID.ISLOCALNAME));
-                            aclPdfmsg.setContentObject(appointment);
-                            send(aclPdfmsg);
+                            pdfA = searchForService("pdf");
+                            for (AID agentEmail : pdfA) {
+                                ACLMessage aclPdfmsg = new ACLMessage(ACLMessage.REQUEST);
+                                //aclUpdEmailMsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
+                                aclPdfmsg.setContentObject(appointment);
+                                aclPdfmsg.addReceiver(agentEmail);
+                                send(aclPdfmsg);
+                            }
+
+
                         }
 
 
