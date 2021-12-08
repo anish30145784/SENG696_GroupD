@@ -11,12 +11,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SmsAgent extends EnhancedAgent {
+public class    SmsAgent extends EnhancedAgent {
 
 
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
-    String password = "test1234";
+    String password = "sampreet07";
     Connection connection = null;
 
     @Override
