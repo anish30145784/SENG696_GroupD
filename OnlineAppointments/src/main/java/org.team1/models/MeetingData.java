@@ -3,11 +3,12 @@ package org.team1.models;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @Table(name = "meeting_date")
 @Entity
-public class MeetingData {
+public class MeetingData implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)

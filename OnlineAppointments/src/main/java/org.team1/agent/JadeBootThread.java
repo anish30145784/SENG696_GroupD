@@ -13,7 +13,7 @@ public class JadeBootThread extends Thread {
     //add the <agent-local-name>:<fully-qualified-agent-class> name here;
 // you can add more than one by semicolon separated values.
     // private final String ACTOR_NAMES_args = "AppointmentAgent:org.team1.agent.AppointmentJadeAgent;EmailAgent:org.team1.agent.EmailAgent;SmsAgent:org.team1.agent.SmsAgent;CompletionAgent:org.team1.agent.CompletionAgent;PdfAgent:org.team1.agent.PdfAgent;ClinicAgent:org.team1.agent.ClinicAgent";
-    private final String ACTOR_NAMES_args = "AppointmentAgent:org.team1.agent.AppointmentAgent;EmailAgent:org.team1.agent.EmailAgent;SmsAgent:org.team1.agent.SmsAgent;FeedbackAgent:org.team1.agent.FeedbackAgent;PdfAgent:org.team1.agent.PdfAgent;ClinicAgent:org.team1.agent.ClinicAgent";
+    private final String ACTOR_NAMES_args = "AppointmentAgent:org.team1.agent.AppointmentAgent;EmailAgent:org.team1.agent.EmailAgent;SmsAgent:org.team1.agent.SmsAgent;FeedbackAgent:org.team1.agent.FeedbackAgent;PdfAgent:org.team1.agent.PdfAgent;ClinicAgent:org.team1.agent.ClinicAgent;VideoAgent:org.team1.agent.VideoLinkAgent";
     private final String GUI_args = "-gui";
     private final Class<?> secondClass;
     private final Method main;

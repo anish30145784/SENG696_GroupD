@@ -22,7 +22,7 @@ public class ClinicAgent extends EnhancedAgent {
     public Set<AID> appA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
-    String password = "sampreet07";
+    String password = "test1234";
     Connection connection = null;
     String task = null;
 
@@ -153,6 +153,7 @@ public class ClinicAgent extends EnhancedAgent {
                                     client.setEmail(rs.getString("email"));
                                     client.setUsername(rs.getString("username"));
                                     client.setFirstName(rs.getString("first_name"));
+                                    client.setFirstName(rs.getString("last_name"));
                                     client.setId(rs.getString("id"));
                                     client.setPhone(Long.valueOf(rs.getString("phone")));
                                     appointment.setClient(client);

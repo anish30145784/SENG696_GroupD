@@ -191,6 +191,8 @@ public class Appointment implements Serializable {
                 ", email='" + email + '\'' +
                 ", sms='" + sms + '\'' +
                 ", feedback='" + feedback + '\'' +
+                ", age='" + age + '\'' +
+                ", breed='" + breed + '\'' +
                 '}';
     }
 

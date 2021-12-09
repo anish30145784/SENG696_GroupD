@@ -1,5 +1,6 @@
 package org.team1.agent;
 
+import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
@@ -9,14 +10,19 @@ import org.team1.utils.EmailUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class EmailAgent extends EnhancedAgent {
 
+    public Set<AID> videoA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
-    String password = "sampreet07";
+    String password = "test1234";
     Connection connection = null;
+    boolean status = false;
+    MeetingData meetingData = new MeetingData();
 
     @Override
     public void setup() {
@@ -36,18 +42,14 @@ public class EmailAgent extends EnhancedAgent {
             protected void onTick() {
                 try {
                     String subject = "Appointment Booked";
-
-
-                    ACLMessage msg = blockingReceive();
-
-
+                    ACLMessage msg = receive();
                     if (msg != null && msg.getConversationId() == "Delete") {
                         System.out.println("Inside Delete If Block of Email Agent !");
                         Appointment appointment = (Appointment) msg.getContentObject();
 
                         EmailUtils.main(appointment.getClient().getEmail(), "Appointment Deleted", "Dear " + appointment.getClient().getFirstName() +
                                 ",<br> your appointment scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +
-                                "<br> At " + appointment.getDateTime() + " has been cancelled ! ");
+                                "<br> At " + appointment.getDateTime() + " has been deleted ! ");
 
                         PreparedStatement dStat = connection.prepareStatement("update appointment set status='Deleted', del_mail = 1 WHERE  id = ?");
                         dStat.setLong(1, appointment.getId());
@@ -57,13 +59,38 @@ public class EmailAgent extends EnhancedAgent {
                         System.out.println("Inside Update If Block of Email Agent !");
                         Appointment appointment = (Appointment) msg.getContentObject();
                         if (appointment != null) {
-                            PreparedStatement statement1 = connection.prepareStatement("select * from meeting_date");
-                            ResultSet resultSet1 = statement1.executeQuery();
-                            MeetingData meetingData = new MeetingData();
-                            while (resultSet1.next()) {
-                                meetingData.setUrl(resultSet1.getString("url"));
-                                meetingData.setPassword(resultSet1.getString("password"));
-                                meetingData.setMeetingId(resultSet1.getString("meeting_id"));
+                            try {
+                                System.out.println("Calling Video Agent from Update Block of Email Agent !");
+                                videoA = searchForService("video");
+                                for (AID agentVideo : videoA) {
+                                    ACLMessage aclVideoMsg = new ACLMessage(ACLMessage.REQUEST);
+                                    //aclUpdEmailMsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
+                                    aclVideoMsg.setContentObject(appointment);
+                                    aclVideoMsg.setConversationId("email");
+                                    aclVideoMsg.addReceiver(agentVideo);
+                                    send(aclVideoMsg);
+
+                                    System.out.println("Waiting For VideoLink Agent message from Update Block of Email Agent !");
+                                    ACLMessage videoMsg = blockingReceive();
+                                    MeetingData md = (MeetingData) videoMsg.getContentObject();
+                                    meetingData.setUrl(md.getUrl());
+                                    meetingData.setPassword(md.getPassword());
+                                    meetingData.setMeetingId(md.getMeetingId());
+                                }
+                            } catch (Exception e) {
+                                status = true;
+                                e.printStackTrace();
+                            }
+
+                            if (status = true) {
+                                PreparedStatement statement1 = connection.prepareStatement("select * from meeting_date");
+                                ResultSet resultSet1 = statement1.executeQuery();
+
+                                while (resultSet1.next()) {
+                                    meetingData.setUrl(resultSet1.getString("url"));
+                                    meetingData.setPassword(resultSet1.getString("password"));
+                                    meetingData.setMeetingId(resultSet1.getString("meeting_id"));
+                                }
                             }
 
                             EmailUtils.main(appointment.getClient().getEmail(), "Appointment Updated", "Dear " +
@@ -136,15 +163,43 @@ public class EmailAgent extends EnhancedAgent {
                             if (StringUtils.isEmpty(appointment.getEmail())) {
                                 System.out.println("sending mail");
 
-                                PreparedStatement statement1 = connection.prepareStatement("select * from meeting_date");
-                                ResultSet resultSet1 = statement1.executeQuery();
-                                MeetingData meetingData = new MeetingData();
-                                while (resultSet1.next()) {
-                                    meetingData.setUrl(resultSet1.getString("url"));
-                                    meetingData.setPassword(resultSet1.getString("password"));
-                                    meetingData.setMeetingId(resultSet1.getString("meeting_id"));
+                                try {
+                                    System.out.println("Calling Video Agent from Else Block of Email Agent !");
+                                    videoA = searchForService("video");
+                                    for (AID agentVideo : videoA) {
+                                        ACLMessage aclVideoMsg = new ACLMessage(ACLMessage.REQUEST);
+                                        //aclUpdEmailMsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
+                                        aclVideoMsg.setContentObject(appointment);
+                                        aclVideoMsg.setConversationId("email");
+                                        aclVideoMsg.addReceiver(agentVideo);
+                                        send(aclVideoMsg);
+
+                                        System.out.println("Waiting For VideoLink Agent message from Else Block of Email Agent !");
+                                        ACLMessage videoMsg = blockingReceive();
+                                        MeetingData md = (MeetingData) videoMsg.getContentObject();
+                                        meetingData.setUrl(md.getUrl());
+                                        meetingData.setPassword(md.getPassword());
+                                        meetingData.setMeetingId(md.getMeetingId());
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    status = false;
+
                                 }
 
+                                if (status == false) {
+
+
+                                    PreparedStatement statement1 = connection.prepareStatement("select * from meeting_date");
+                                    ResultSet resultSet1 = statement1.executeQuery();
+
+                                    while (resultSet1.next()) {
+                                        meetingData.setUrl(resultSet1.getString("url"));
+                                        meetingData.setPassword(resultSet1.getString("password"));
+                                        meetingData.setMeetingId(resultSet1.getString("meeting_id"));
+                                    }
+
+                                }
                                 System.out.println("Doctor Last Name : " + appointment.getDoctor().getLastName());
                                 EmailUtils.main(appointment.getClient().getEmail(), subject, "Dear " + appointment.getClient().getFirstName()
                                         + ",<br> your appointment is scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +

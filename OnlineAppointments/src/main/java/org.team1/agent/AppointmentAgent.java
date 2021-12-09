@@ -23,7 +23,7 @@ public class AppointmentAgent extends EnhancedAgent {
     public Set<AID> smsA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
-    String password = "sampreet07";
+    String password = "test1234";
     Connection connection = null;
     @Autowired
     private JdbcTemplate appointmentRepository;
@@ -148,7 +148,7 @@ public class AppointmentAgent extends EnhancedAgent {
                                 ACLMessage aclUpdEmailMsg = new ACLMessage(ACLMessage.REQUEST);
                                 //aclUpdEmailMsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
                                 aclUpdEmailMsg.setContentObject(appointment);
-                                aclUpdEmailMsg.setConversationId("Create");
+                                aclUpdEmailMsg.setConversationId("email");
                                 aclUpdEmailMsg.addReceiver(agentEmail);
                                 send(aclUpdEmailMsg);
                             }
@@ -159,10 +159,12 @@ public class AppointmentAgent extends EnhancedAgent {
 
                             System.out.println("Calling SMS Agent !");
                             smsA = searchForService("sms");
-                            for (AID agentEmail : smsA) {
+                            for (AID agentSMS : smsA) {
                                 ACLMessage aclSMSmsg = new ACLMessage(ACLMessage.REQUEST);
-                                aclSMSmsg.addReceiver(new AID("SmsAgent", AID.ISLOCALNAME));
+                                //aclSMSmsg.addReceiver(new AID("SmsAgent", AID.ISLOCALNAME));
                                 aclSMSmsg.setContentObject(appointment);
+                                aclSMSmsg.setConversationId("sms");
+                                aclSMSmsg.addReceiver(agentSMS);
                                 send(aclSMSmsg);
                             }
 

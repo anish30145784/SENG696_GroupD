@@ -1,5 +1,6 @@
 package org.team1.agent;
 
+import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.UnreadableException;
@@ -9,20 +10,25 @@ import org.team1.utils.SmsUtil;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class    SmsAgent extends EnhancedAgent {
+public class SmsAgent extends EnhancedAgent {
 
 
+    public Set<AID> videoA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
-    String password = "sampreet07";
+    String password = "test1234";
     Connection connection = null;
+    boolean status = false;
 
     @Override
     public void setup() {
         register("sms");
         System.out.println("Connecting database inside SMS Agent...");
+        MeetingData meetingData = new MeetingData();
 
         try {
             connection = DriverManager.getConnection(url, username, password);
@@ -36,27 +42,52 @@ public class    SmsAgent extends EnhancedAgent {
             protected void onTick() {
                 try {
                     System.out.println("SMS agent=============started");
-                    ACLMessage smsMsg = blockingReceive();
+                    ACLMessage smsMsg = receive();
                     if (smsMsg != null) {
-                        Appointment appmnt = (Appointment) smsMsg.getContentObject();
-                        System.out.println("Received Appointment object from Appointment agent : " + appmnt);
-                        PreparedStatement statement1 = connection.prepareStatement("select * from meeting_date");
-                        ResultSet resultSet1 = statement1.executeQuery();
-                        MeetingData meetingData = new MeetingData();
-                        while (resultSet1.next()) {
-                            meetingData.setUrl(resultSet1.getString("url"));
-                            meetingData.setPassword(resultSet1.getString("password"));
-                            meetingData.setMeetingId(resultSet1.getString("meeting_id"));
+                        Appointment appmt = (Appointment) smsMsg.getContentObject();
+                        System.out.println("Received Appointment object from Appointment agent : " + appmt);
+
+                        try {
+                            System.out.println("Calling Video Agent from Update Block of SMS Agent !");
+                            videoA = searchForService("video");
+                            for (AID agentVideo : videoA) {
+                                ACLMessage aclVideoMsg = new ACLMessage(ACLMessage.REQUEST);
+                                //aclUpdEmailMsg.addReceiver(new AID("EmailAgent", AID.ISLOCALNAME));
+                                aclVideoMsg.setContentObject(appmt);
+                                aclVideoMsg.setConversationId("sms");
+                                aclVideoMsg.addReceiver(agentVideo);
+                                send(aclVideoMsg);
+
+                                System.out.println("Waiting For VideoLink Agent message from Update Block of SMS Agent !");
+                                ACLMessage videoMsg = blockingReceive();
+                                MeetingData md = (MeetingData) videoMsg.getContentObject();
+                                meetingData.setUrl(md.getUrl());
+                                meetingData.setPassword(md.getPassword());
+                                meetingData.setMeetingId(md.getMeetingId());
+                            }
+                        } catch (Exception e) {
+                            status = true;
+                            e.printStackTrace();
                         }
 
-                        if (StringUtils.isEmpty(appmnt.getSms())) {
-                            SmsUtil.main("Dear " + appmnt.getClient().getFirstName()
-                                    + ",\n your appointment is scheduled with doctor : " + appmnt.getDoctor().getFirstName() + " " + appmnt.getDoctor().getLastName() +
-                                    "\n At " + appmnt.getDateTime() + " \n url -" + meetingData.getUrl() +
+                        if (status == true) {
+                            PreparedStatement statement1 = connection.prepareStatement("select * from meeting_date");
+                            ResultSet resultSet1 = statement1.executeQuery();
+                            while (resultSet1.next()) {
+                                meetingData.setUrl(resultSet1.getString("url"));
+                                meetingData.setPassword(resultSet1.getString("password"));
+                                meetingData.setMeetingId(resultSet1.getString("meeting_id"));
+                            }
+                        }
+
+                        if (StringUtils.isEmpty(appmt.getSms())) {
+                            SmsUtil.main("Dear " + appmt.getClient().getFirstName()
+                                    + ",\n your appointment is scheduled with doctor : " + appmt.getDoctor().getFirstName() + " " + appmt.getDoctor().getLastName() +
+                                    "\n At " + appmt.getDateTime() + " \n url -" + meetingData.getUrl() +
                                     "\n meeting id - " + meetingData.getMeetingId() +
-                                    "\n password - " + meetingData.getPassword(), appmnt.getClient().getPhone());
+                                    "\n password - " + meetingData.getPassword(), appmt.getClient().getPhone());
                             PreparedStatement stat1 = connection.prepareStatement("update appointment set sms = 'yes' WHERE  id = ?");
-                            stat1.setLong(1, appmnt.getId());
+                            stat1.setLong(1, appmt.getId());
                             stat1.executeUpdate();
                         }
 
