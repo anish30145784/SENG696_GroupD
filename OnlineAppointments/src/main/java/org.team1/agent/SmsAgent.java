@@ -20,7 +20,7 @@ public class SmsAgent extends EnhancedAgent {
     public Set<AID> videoA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
-    String password = "test1234";
+    String password = "sampreet07";
     Connection connection = null;
     boolean status = false;
 

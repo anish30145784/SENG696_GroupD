@@ -22,7 +22,7 @@ public class ClinicAgent extends EnhancedAgent {
     public Set<AID> appA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
-    String password = "test1234";
+    String password = "sampreet07";
     Connection connection = null;
     String task = null;
 
