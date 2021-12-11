@@ -20,7 +20,7 @@ public class FeedbackAgent extends EnhancedAgent {
     public Set<AID> pdfA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
-    String password = "sampreet07";
+    String password = "test1234";
     Connection connection = null;
 
 

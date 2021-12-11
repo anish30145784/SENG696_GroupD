@@ -20,7 +20,7 @@ public class SmsAgent extends EnhancedAgent {
     public Set<AID> videoA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
-    String password = "sampreet07";
+    String password = "test1234";
     Connection connection = null;
     boolean status = false;
 
@@ -36,7 +36,7 @@ public class SmsAgent extends EnhancedAgent {
             e.printStackTrace();
         }
         System.out.println("Database connected!");
-        addBehaviour(new TickerBehaviour(this, 15000) {
+        addBehaviour(new TickerBehaviour(this, 10000) {
 
             @Override
             protected void onTick() {

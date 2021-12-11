@@ -62,7 +62,7 @@ public class VideoLinkAgent extends EnhancedAgent {
                         send(aclsmsOrEmailMsg);
                     }
 
-                } catch (UnreadableException | IOException e) {
+                } catch (UnreadableException | IOException | NoClassDefFoundError e) {
                     e.printStackTrace();
                 }
             }

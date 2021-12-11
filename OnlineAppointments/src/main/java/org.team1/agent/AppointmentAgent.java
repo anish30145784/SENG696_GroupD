@@ -23,7 +23,7 @@ public class AppointmentAgent extends EnhancedAgent {
     public Set<AID> smsA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
-    String password = "sampreet07";
+    String password = "test1234";
     Connection connection = null;
     @Autowired
     private JdbcTemplate appointmentRepository;
@@ -42,7 +42,7 @@ public class AppointmentAgent extends EnhancedAgent {
         System.out.println("Database connected!");
 
 
-        addBehaviour(new TickerBehaviour(this, 4000) {
+        addBehaviour(new TickerBehaviour(this, 5000) {
             @Override
             protected void onTick() {
                 try {
@@ -186,7 +186,7 @@ public class AppointmentAgent extends EnhancedAgent {
         String cri = criticality.toString();
         System.out.println("StartDate sent to Function : " + dateTime + " | Timestamp : " + dateTime.getTime());
         System.out.println("Criticality sent to Function : " + cri);
-        int hoursTillnxtDay9am = (int) (Math.floor(dateTime.getTime() / (1000 * 60 * 60)) % 24) <= 1 ? 14 + ((int) Math.floor((dateTime.getTime() / (1000 * 60 * 60)) % 24)) : 38 - ((int) Math.floor((dateTime.getTime() / (1000 * 60 * 60)) % 24));
+        int hoursTillnxtDay9am = (int) (Math.floor(dateTime.getTime() / (1000 * 60 * 60)) % 24) <= 1 ? 14 + ((int) Math.floor((dateTime.getTime() / (1000 * 60 * 60)) % 24)) : 40 - ((int) Math.floor((dateTime.getTime() / (1000 * 60 * 60)) % 24));
         System.out.println("hoursTillnxtDay9am : " + hoursTillnxtDay9am);
         Date startDate = cri.equals("URGENT") ? new Date(dateTime.getTime() + (1 * 60 * 60 * 1000)) : new Date(dateTime.getTime() + (hoursTillnxtDay9am * 3600000));
         System.out.println("New Start Date based on Criticality : " + startDate);

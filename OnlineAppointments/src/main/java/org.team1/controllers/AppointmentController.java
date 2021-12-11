@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -168,19 +169,29 @@ public class AppointmentController {
         System.out.println("Inside generateAvailableDate function !");
         String cri = getAppointment(id).getCriticality().toString();
         System.out.println("Update App Criticality : " + cri.toString());
+        System.out.println("Timestamp of Updated Time : " + updateApp.getDateTime().getTime());
         //int hoursTillnxtDay9am = (int) (Math.floor(updateApp.getDateTime().getTime() / (1000 * 60 * 60)) % 24) <= 0 ? 14 + ((int) Math.floor((updateApp.getDateTime().getTime() / (1000 * 60 * 60)) % 24)) : 33 - ((int) Math.floor((updateApp.getDateTime().getTime() / (1000 * 60 * 60)) % 24));
         int hoursTillnxtDay9am = 33 - ((int) Math.floor((updateApp.getDateTime().getTime() / (1000 * 60 * 60)) % 24));
         System.out.println("hoursTillnxtDay9am : " + hoursTillnxtDay9am);
         Date startDate = cri.equals("URGENT") ? new Date(updateApp.getDateTime().getTime() + (1 * 60 * 60 * 1000)) : new Date(updateApp.getDateTime().getTime() + (hoursTillnxtDay9am * 3600000));
         System.out.println("New Start Date based on Criticality : " + startDate);
+        List<Date> schAppTime = new ArrayList<Date>();
+        for (int i = 0; i < a.size(); i++) {
+            System.out.println("Scheduled DateTime : " + a.get(i));
+            schAppTime.add(a.get(i).getDateTime());
+        }
         while (true) {
+            //Date sch = schAppTime.iterator().next();
             System.out.println("Start Date timestamp : " + startDate.getTime());
             if ((Math.floor((startDate.getTime() / (1000 * 60 * 60)) % 24)) == 19) {
                 startDate = new Date(startDate.getTime() + (14 * 60 * 60 * 1000));
                 System.out.println("Next day start time : " + startDate);
             }
+            System.out.println("Rescheduled Appointment time : " + startDate);
 
-            if (a.contains(startDate)) {
+
+            if (schAppTime.contains(startDate)) {
+                System.out.println("Match found in Re-scheduling appointment : " + startDate);
                 startDate = new Date(startDate.getTime() + (1 * 60 * 60 * 1000));
                 System.out.println("New Start date : " + startDate);
             } else {

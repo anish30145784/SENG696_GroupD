@@ -19,7 +19,7 @@ public class EmailAgent extends EnhancedAgent {
     public Set<AID> videoA = new HashSet<>();
     String url = "jdbc:mysql://localhost:3306/mydatabase_new?useSSL=false";
     String username = "root";
-    String password = "sampreet07";
+    String password = "test1234";
     Connection connection = null;
     boolean status = false;
     MeetingData meetingData = new MeetingData();
@@ -36,21 +36,23 @@ public class EmailAgent extends EnhancedAgent {
             e.printStackTrace();
         }
         System.out.println("Database connected!");
-        addBehaviour(new TickerBehaviour(this, 12000) {
+        addBehaviour(new TickerBehaviour(this, 10000) {
 
             @Override
             protected void onTick() {
                 try {
                     String subject = "Appointment Booked";
-                    ACLMessage msg = receive();
+                    ACLMessage msg = blockingReceive();
                     if (msg != null && msg.getConversationId() == "Delete") {
                         System.out.println("Inside Delete If Block of Email Agent !");
                         Appointment appointment = (Appointment) msg.getContentObject();
 
+                        System.out.println("Preparing to Send Delete Notification for ID : " + appointment.getId());
                         EmailUtils.main(appointment.getClient().getEmail(), "Appointment Deleted", "Dear " + appointment.getClient().getFirstName() +
                                 ",<br> your appointment scheduled with doctor : " + appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName() +
                                 "<br> At " + appointment.getDateTime() + " has been deleted ! ");
 
+                        System.out.println("Preparing to Soft delete ID : " + appointment.getId());
                         PreparedStatement dStat = connection.prepareStatement("update appointment set status='Deleted', del_mail = 1 WHERE  id = ?");
                         dStat.setLong(1, appointment.getId());
                         dStat.executeUpdate();
@@ -109,6 +111,11 @@ public class EmailAgent extends EnhancedAgent {
                                     "<br> At " + appointment.getDateTime() + " <br> url -" + meetingData.getUrl() +
                                     "<br> meeting id - " + meetingData.getMeetingId() +
                                     "<br> password - " + meetingData.getPassword());
+
+                            System.out.println("Preparing to Update indicator for ID : " + appointment.getId());
+                            PreparedStatement dStat = connection.prepareStatement("update appointment set updated_mail = 1 WHERE  id = ?");
+                            dStat.setLong(1, appointment.getId());
+                            dStat.executeUpdate();
 
                         }
                     } else {
